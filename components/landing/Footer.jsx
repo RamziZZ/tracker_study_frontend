@@ -59,7 +59,7 @@ export default function Footer() {
       {/* Bottom */}
       <div className="bg-[#1c2f5c] px-6 py-4 flex flex-col md:flex-row justify-between items-center text-sm">
         <span>TIF PSDKU Nganjuk</span>
-        <span>Copyright RUUWET Team</span>
+        <span>Copyright RUWET Team</span>
       </div>
     </footer>
   );

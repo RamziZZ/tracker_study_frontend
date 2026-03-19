@@ -1,46 +1,22 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 
 export default function Navbar() {
-  const [open, setOpen] = useState(false);
-
   return (
-    <header className="w-full bg-white shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-        
-        {/* Logo */}
-        <div className="font-bold text-blue-700">
-          🎓 Tracer Study
-        </div>
+    <nav className="flex justify-between items-center px-6 py-4 bg-white shadow">
+      <h1 className="font-bold text-blue-700">Tracer Study</h1>
 
-        {/* Desktop Menu */}
-        <nav className="hidden md:flex gap-6 text-gray-600">
-          <Link href="/">Home</Link>
-          <Link href="/cari-alumni">Tracking Alumni</Link>
-          <Link href="/loker">Loker</Link>
-          <Link href="/tentang">Tentang</Link>
-        </nav>
-
-        {/* Mobile Button */}
-        <button
-          className="md:hidden"
-          onClick={() => setOpen(!open)}
-        >
-          ☰
-        </button>
+      <div className="flex gap-6">
+        <Link href="/home">Home</Link>
+        <Link href="/home/cari-alumni">Tracking Alumni</Link>
+        <Link href="/home/loker">Informasi Loker</Link>
+        <Link href="/home/tentang">Tentang</Link>
       </div>
 
-      {/* Mobile Menu */}
-      {open && (
-        <div className="md:hidden px-6 pb-4 flex flex-col gap-3">
-          <Link href="/">Home</Link>
-          <Link href="/cari-alumni">Tracking Alumni</Link>
-          <Link href="/loker">Loker</Link>
-          <Link href="/tentang">Tentang</Link>
-        </div>
-      )}
-    </header>
+      <button className="bg-blue-700 text-white px-4 py-2 rounded-full">
+        Login
+      </button>
+    </nav>
   );
 }

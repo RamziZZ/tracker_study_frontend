@@ -54,7 +54,7 @@ export default function GraduateProfile() {
       </h3>
 
       {data.map((item, index) => (
-        <div key={index} className="bg-gray-100 rounded-lg p-4">
+        <div key={index} className="bg-blue-50 rounded-lg p-4">
           
           {/* Header */}
           <div
