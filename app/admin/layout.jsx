@@ -3,12 +3,16 @@ import Sidebar from "@/components/shared/sidebar";
 
 export default function AdminLayout({ children }) {
   return (
-    <div className="bg-blue-50">
-      <Navbar />
-      <Sidebar />
-      <main className="pt-[88px] pl-[232px] pr-6 pb-8 min-h-screen">
-        {children}
-      </main>
+    <div className="bg-blue-50 min-h-screen">
+      <div className="p-4">
+        <Navbar />
+      </div>
+      <div className="flex px-1 pb-4 gap-1">
+        <Sidebar />
+        <main className="flex-1">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

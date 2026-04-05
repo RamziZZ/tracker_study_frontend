@@ -8,7 +8,7 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <header className="fixed top-4 left-4 right-4 z-50 bg-white rounded-lg shadow-sm px-6 h-[60px] flex items-center justify-between">
+    <header className="w-full bg-white rounded-lg shadow-sm px-6 h-[60px] flex items-center justify-between">
       <div className="flex items-center">
         <Image
           src="/icons/logo_tracer_study.png"
