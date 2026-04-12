@@ -1,12 +1,17 @@
+import Hero from "@/components/landing/home/Hero_Home";
+import Collaboration from "@/components/landing/home/Collaboration";
+import JobList from "@/components/landing/home/JobList";
+import Footer from "@/components/landing/Footer";
+
 export default function HomePage() {
   return (
-    <div>
-      <h1 className="text-3xl font-bold">
-        Sistem Tracer Study Alumni
-      </h1>
-      <p>
-        Selamat datang di sistem tracer study kampus.
-      </p>
-    </div>
+    <>
+      <div className="bg-blue-50 w-full">
+        <Hero />
+        <Collaboration />
+        <JobList />
+        <Footer />
+      </div>
+    </>
   );
-}    
+}
