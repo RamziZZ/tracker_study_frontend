@@ -8,7 +8,10 @@ export default function Collaboration() {
         </h2>
 
         <p className="mt-4 text-gray-600">
-          Tracer Study adalah platform resmi untuk melacak jejak karier alumni.
+          Tracer Study adalah platform resmi yang dirancang untuk melacak jejak karier dan perkembangan alumni setelah menyelesaikan masa studi. 
+          Kami percaya bahwa kesuksesan sebuah institusi tercermin dari keberhasilan para lulusannya di dunia kerja dan masyarakat.
+          Data yang Anda berikan bersifat rahasia dan akan digunakan secara kolektif untuk mengevaluasi relevansi kurikulum, 
+          memenuhi standar akreditasi, dan memperpendek kesenjangan antara dunia pendidikan dengan industri.
         </p>
       </div>
     </section>

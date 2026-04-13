@@ -1,4 +1,4 @@
-export default function Hero() {
+export default function HeroHome() {
   return (
     <section className="max-w-7xl mx-auto px-6 py-16 flex flex-col md:flex-row items-center gap-10">
       <div className="flex-1">
@@ -9,7 +9,7 @@ export default function Hero() {
 
         <p className="mt-4 text-gray-600">
           Bantu kami memetakan kesuksesan lulusan dan tingkatkan kualitas
-          almamater.
+          almamater. Kontribusi kecil Anda hari ini adalah inspirasi besar bagi adik tingkat di masa depan.
         </p>
 
         <div className="mt-6 flex gap-4">

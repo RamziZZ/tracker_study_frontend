@@ -1,22 +1,70 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 export default function Navbar() {
-  return (
-    <nav className="flex justify-between items-center px-6 py-4 bg-white shadow">
-      <h1 className="font-bold text-blue-700">Tracer Study</h1>
+  const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
 
-      <div className="flex gap-6">
-        <Link href="/home">Home</Link>
-        <Link href="/home/cari-alumni">Tracking Alumni</Link>
-        <Link href="/home/loker">Informasi Loker</Link>
-        <Link href="/home/tentang">Tentang</Link>
+  return (
+    <nav className="bg-white shadow px-6 py-4">
+      <div className="flex justify-between items-center">
+        
+        {/* Logo */}
+        <h1 className="font-bold text-blue-700">Tracer Study</h1>
+
+        {/* Desktop Menu */}
+        <div className="hidden md:flex gap-6 items-center">
+          <NavLink href="/home" label="Home" pathname={pathname} />
+          <NavLink href="/home/cari-alumni" label="Tracking Alumni" pathname={pathname} />
+          <NavLink href="/home/loker" label="Informasi Loker" pathname={pathname} />
+          <NavLink href="/home/tentang" label="Tentang" pathname={pathname} />
+
+          <button className="bg-blue-700 text-white px-4 py-2 rounded-full">
+            Login
+          </button>
+        </div>
+
+        {/* Hamburger Button */}
+        <button
+          className="md:hidden text-2xl"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          ☰
+        </button>
       </div>
 
-      <button className="bg-blue-700 text-white px-4 py-2 rounded-full">
-        Login
-      </button>
+      {/* Mobile Menu */}
+      {isOpen && (
+        <div className="md:hidden mt-4 flex flex-col gap-4">
+          <NavLink href="/home" label="Home" pathname={pathname} />
+          <NavLink href="/home/cari-alumni" label="Tracking Alumni" pathname={pathname} />
+          <NavLink href="/home/loker" label="Informasi Loker" pathname={pathname} />
+          <NavLink href="/home/tentang" label="Tentang" pathname={pathname} />
+
+          <button className="bg-blue-700 text-white px-4 py-2 rounded-full w-full">
+            Login
+          </button>
+        </div>
+      )}
     </nav>
+  );
+}
+
+/* 🔹 Reusable NavLink */
+function NavLink({ href, label, pathname }) {
+  return (
+    <Link
+      href={href}
+      className={
+        pathname === href
+          ? "text-blue-700 font-semibold"
+          : "text-gray-700 hover:text-blue-500"
+      }
+    >
+      {label}
+    </Link>
   );
 }
