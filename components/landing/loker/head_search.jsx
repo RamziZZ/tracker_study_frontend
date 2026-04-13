@@ -2,23 +2,31 @@
 "use client";
 
 import { useState } from "react";
+import { 
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select.tsx";
 
 export default function HeadSearch() {
     const [value, setValue] = useState("");
 
     return (
-        <section className="max-w-7xl mx-auto px-10 py-16 flex flex-row md:flex-row items-center gap-10">
-        <div className="flex flex-col w-full items-center">
+        <section className="max-w-5xl min-h-screen mx-auto px-10 py-16 flex flex-row md:flex-row items-center gap-10">
+        <div className="flex flex-col w-full items-center gap-10">
             <h1 className="text-3xl md:text-5xl font-bold text-gray-900 leading-tight text-center lg:text-start">
             Cari Informasi Lowongan Kerja Disini <br />
-            {/* <span className="text-blue-700">Kebanggaan Kami</span> */}
             </h1>
 
-            <p className="mt-4 text-sm md:text-lg text-gray-600 text-center lg:text-start">
+            <p className="max-w-5xl text-sm md:text-lg text-gray-600 text-center">
             Bantu kami memetakan kesuksesan lulusan dan tingkatkan kualitas almamater. Kontribusi kecil Anda hari ini adalah inspirasi besar bagi adik tingkat di masa depan.
             </p>
 
-            <form action="" className="w-full flex flex-col gap-4">
+            <form action="" className="w-full flex flex-col gap-5">
                 <input 
                     type="text" 
                     value={value}
@@ -26,17 +34,61 @@ export default function HeadSearch() {
                         const onlyText = e.target.value.replace(/[^a-zA-Z ]/g, '');
                         setValue(onlyText);
                     }}
-                    className="w-full h-fit py-2.5 px-5 border rounded-full" 
+                    className="w-full h-fit py-2.5 px-5 border border-blue-500 rounded-full" 
                     placeholder="masukkan nama loker disini"/>
 
-                <label for="countries" class="block mb-2.5 text-sm font-medium text-heading">Kategori Pekerjaan</label>
-                <select id="countries" class="block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body rounded-full">
-                    <option selected>Pilih Kategori Pekerjaan</option>
-                    <option value="US">United States</option>
-                    <option value="CA">Canada</option>
-                    <option value="FR">France</option>
-                    <option value="DE">Germany</option>
-                </select>
+                <div className="w-full flex flex-col gap-1.5">
+                    <label className="block text-sm font-medium text-heading text-blue-500">Kategori Pekerjaan</label>
+                    <Select className="">
+                        <SelectTrigger className="w-full h-fit py-6 px-5 rounded-full border-blue-500">
+                            <SelectValue className="h-fit " placeholder="Pilih Jenis Pekerjaan" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-blue-100">
+                            <SelectGroup>
+                            <SelectLabel>Fruits</SelectLabel>
+                            <SelectItem value="paruh_waktu">Paruh Waktu/Part Time</SelectItem>
+                            <SelectItem value="penuh_waktu">Penuh Waktu/Full Time</SelectItem>
+                            <SelectItem value="freelance">Freelance</SelectItem>
+                            <SelectItem value="contract">Contract</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="w-full h-fit flex flex-col md:flex-row gap-5">
+                    <div className="w-full flex flex-col gap-1.5">
+                        <label className="block text-sm font-medium text-heading text-blue-500">Kategori Waktu Kerja</label>
+                        <Select className="">
+                            <SelectTrigger className="w-full h-fit py-6 px-5 rounded-full border-blue-500">
+                                <SelectValue className="h-fit " placeholder="Select a fruit" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-blue-100">
+                                <SelectGroup>
+                                <SelectLabel>Fruits</SelectLabel>
+                                <SelectItem value="wfh/wfa">WFH/WFA (Work From Home/Anywhere)</SelectItem>
+                                <SelectItem value="wfo/onsite">WFO/Onsite (Work From Office)</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    
+                    <div className="w-full flex flex-col gap-1.5">
+                        <label className="block text-sm font-medium text-heading text-blue-500">Kategori Publiser</label>
+                        <Select className="">
+                            <SelectTrigger className="w-full h-fit py-6 px-5 rounded-full border-blue-500">
+                                <SelectValue className="h-fit " placeholder="Pilih Publiser" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-blue-100">
+                                <SelectGroup>
+                                <SelectLabel>Fruits</SelectLabel>
+                                <SelectItem value="admin">Admin</SelectItem>
+                                <SelectItem value="alumni">Alumni</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
 
                 <button type="submit" className="bg-blue-700 flex justify-center w-full text-white px-6 py-4 rounded-full hover:bg-blue-600 hover:text-blue-50 active:bg-blue-500 duration-300 cursor-pointer">
                     Cari Alumni

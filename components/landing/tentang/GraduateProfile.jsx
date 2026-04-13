@@ -1,5 +1,8 @@
 "use client";
 
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ArrowDown01FreeIcons, ArrowUp01FreeIcons } from "@hugeicons/core-free-icons"
+
 import { useState } from "react";
 
 export default function GraduateProfile() {
@@ -48,35 +51,35 @@ export default function GraduateProfile() {
   ];
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow space-y-4">
+    <div className="bg-white p-6 rounded-xl shadow-md/15 space-y-4">
       <h3 className="text-xl font-semibold">
         Profil Lulusan Teknik Informatika
       </h3>
 
       {data.map((item, index) => (
-        <div key={index} className="bg-blue-50 rounded-lg p-4">
+        <div key={index} className="bg-blue-100 rounded-lg p-4">
           
           {/* Header */}
           <div
             className="flex justify-between items-center cursor-pointer"
             onClick={() => toggle(index)}
           >
-            <h4 className="font-semibold text-blue-800">
+            <h4 className="font-semibold text-blue-500">
               {item.title}
             </h4>
             <span>
-              {openIndexes.includes(index) ? "▲" : "▼"}
+              {openIndexes.includes(index) ? <HugeiconsIcon icon={ArrowUp01FreeIcons} size={24} color="black" strokeWidth={1.5} /> : <HugeiconsIcon icon={ArrowDown01FreeIcons} size={24} color="black" strokeWidth={1.5} />}
             </span>
           </div>
 
           {/* Content */}
-          {openIndexes.includes(index) && (
-            <ul className="mt-3 text-sm text-gray-600 space-y-2 list-disc pl-5">
+          <div className={`overflow-hidden transition-all duration-300 ease-in-out ${ openIndexes.includes(index) ? "max-h-96 opacity-100 mt-3" : "max-h-0 opacity-0"}`}>
+            <ul className="mt-3 text-sm text-gray-500 space-y-2 list-disc pl-5">
               {item.items.map((text, i) => (
                 <li key={i}>{text}</li>
               ))}
             </ul>
-          )}
+          </div>
         </div>
       ))}
     </div>
