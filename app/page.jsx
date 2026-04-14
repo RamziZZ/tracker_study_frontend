@@ -1,20 +1,17 @@
-import ComponentGallery from "../components/ui/ComponentGallery";
+import Hero from "@/components/landing/home/Hero_Home";
+import Collaboration from "@/components/landing/home/Collaboration";
+import JobList from "@/components/landing/home/JobList";
+import Footer from "@/components/landing/Footer";
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100">
-      <div className="mx-auto max-w-6xl px-4 py-10">
-        <header className="flex flex-col gap-3">
-          <h1 className="text-3xl font-bold">Sistem Tracer Study Alumni</h1>
-          <p className="text-sm text-slate-300">
-            Selamat datang di sistem tracer study kampus. Di halaman ini kamu bisa mencoba komponen UI dasar.
-          </p>
-        </header>
-
-        <div className="mt-8">
-          <ComponentGallery />
-        </div>
+    <>
+      <div className="bg-blue-50 w-full">
+        <Hero />
+        <Collaboration />
+        <JobList />
+        <Footer />
       </div>
-    </main>
+    </>
   );
 }
