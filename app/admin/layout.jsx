@@ -7,7 +7,7 @@ export default function AdminLayout({ children }) {
       <div className="p-4">
         <Navbar />
       </div>
-      <div className="flex px-1 pb-4 gap-1">
+      <div className="flex px-4 pb-4 gap-4">
         <Sidebar />
         <main className="flex-1">
           {children}

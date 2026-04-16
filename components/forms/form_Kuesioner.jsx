@@ -37,12 +37,48 @@ const programOptions = [
   { value: "manajemen", label: "Manajemen" },
 ];
 
+// Progress Indicator Component
+function ProgressIndicator({ currentStep }) {
+  const steps = ["Identitas", "Status Kerja", "Kompetensi & Proses"];
+  
+  return (
+    <div className="mb-10 flex items-center justify-between">
+      {steps.map((step, idx) => (
+        <div key={idx} className="flex flex-1 items-center">
+          {/* Circle */}
+          <div className={`flex h-12 w-12 items-center justify-center rounded-full font-semibold text-white transition-all ${
+            idx < currentStep ? "bg-green-500" : idx === currentStep ? "bg-green-400" : "bg-slate-300"
+          }`}>
+            {idx < currentStep ? "✓" : idx + 1}
+          </div>
+          
+          {/* Label */}
+          <div className="ml-3">
+            <p className={`text-xs font-medium transition-all ${
+              idx <= currentStep ? "text-slate-900" : "text-slate-500"
+            }`}>
+              {step}
+            </p>
+          </div>
+
+          {/* Line */}
+          {idx < steps.length - 1 && (
+            <div className={`ml-4 h-1 flex-1 rounded-full transition-all ${
+              idx < currentStep ? "bg-green-500" : "bg-slate-200"
+            }`} />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function InputField({ label, value, onChange, placeholder, name, type = "text" }) {
   return (
     <label className="block">
       <span className="mb-2 block text-sm font-medium text-slate-700">{label}</span>
       <input
-        className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+        className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
         type={type}
         name={name}
         value={value}
@@ -58,7 +94,7 @@ function SelectField({ label, value, onChange, name, options }) {
     <label className="block">
       <span className="mb-2 block text-sm font-medium text-slate-700">{label}</span>
       <select
-        className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+        className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
         name={name}
         value={value}
         onChange={onChange}
@@ -73,18 +109,34 @@ function SelectField({ label, value, onChange, name, options }) {
   );
 }
 
-function SectionBox({ title, children }) {
+function RatingField({ label, value, onChange, name, description }) {
   return (
-    <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-6 shadow-sm shadow-slate-200/40">
-      <div className="mb-5 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800">
-        {title}
+    <div className="space-y-3">
+      <div>
+        <p className="text-sm font-medium text-slate-900">{label}</p>
+        {description && <p className="text-xs text-slate-500 mt-1">{description}</p>}
       </div>
-      <div className="space-y-6">{children}</div>
+      <div className="flex gap-3">
+        {[1, 2, 3, 4, 5].map((num) => (
+          <button
+            key={num}
+            onClick={() => onChange(name, num.toString())}
+            className={`flex h-10 w-10 items-center justify-center rounded-lg font-medium transition-all ${
+              value === num.toString()
+                ? "bg-blue-600 text-white"
+                : "border border-slate-300 bg-white text-slate-700 hover:border-blue-400"
+            }`}
+          >
+            {num}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
 
 export function KuesionerCard() {
+  const [currentStep, setCurrentStep] = useState(0);
   const [status, setStatus] = useState("");
   const [form, setForm] = useState({
     durasiBekerja: "",
@@ -103,11 +155,18 @@ export function KuesionerCard() {
     perguruanTinggi: "",
     tanggalMasuk: "",
     programStudi: "",
+    etika: "",
+    bahasaInggris: "",
+    komunikasi: "",
+    pengorganisasian: "",
+    keanlihanBisnis: "",
+    penguasaanTeknologi: "",
+    kerjasamaTim: "",
+    keputusan: "",
   });
   const [popup, setPopup] = useState({ open: false, variant: "success", message: "" });
 
-  const handleSectionChange = (field) => (event) => {
-    const value = event.target.value;
+  const handleSectionChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -115,224 +174,292 @@ export function KuesionerCard() {
     setStatus(event.target.value);
   };
 
-  const validateForm = () => {
-    if (!status) {
-      return { valid: false, variant: "error", message: "Pilih status kerja Anda terlebih dahulu." };
+  const validateCurrentStep = () => {
+    if (currentStep === 1 && !status) {
+      return { valid: false, message: "Pilih status kerja Anda terlebih dahulu." };
     }
+    return { valid: true, message: "" };
+  };
 
-    if (status === "belum_bekerja") {
-      return { valid: true, variant: "success", message: "Kuesioner berhasil disimpan." };
+  const handleNext = () => {
+    const validation = validateCurrentStep();
+    if (!validation.valid) {
+      setPopup({ open: true, variant: "error", message: validation.message });
+      return;
     }
-
-    const requiredFields = {
-      bekerja: [
-        "durasiBekerja",
-        "pendapatanBekerja",
-        "lokasiBekerja",
-        "jenisPerusahaanBekerja",
-        "posisiBekerja",
-        "namaPerusahaanBekerja",
-      ],
-      wirausaha: [
-        "durasiWirausaha",
-        "pendapatanWirausaha",
-        "lokasiWirausaha",
-        "jenisUsaha",
-        "posisiWirausaha",
-        "namaUsaha",
-      ],
-      studi_lanjut: ["sumberBiaya", "perguruanTinggi", "tanggalMasuk", "programStudi"],
-    };
-
-    const section = requiredFields[status] || [];
-    const missing = section.filter((field) => !form[field]);
-
-    if (missing.length > 0) {
-      return {
-        valid: false,
-        variant: "error",
-        message: "Lengkapi semua pertanyaan di bagian ini sebelum melanjutkan.",
-      };
+    if (currentStep < 2) {
+      setCurrentStep(currentStep + 1);
     }
+  };
 
-    return { valid: true, variant: "success", message: "Kuesioner berhasil disimpan." };
+  const handlePrevious = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const result = validateForm();
-    setPopup({ open: true, variant: result.variant, message: result.message });
+    setPopup({ open: true, variant: "success", message: "Kuesioner berhasil disimpan." });
   };
 
   const closePopup = () => setPopup((prev) => ({ ...prev, open: false }));
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/40">
-        <div className="rounded-[28px] border border-rose-200 bg-rose-50 p-6 text-slate-700 shadow-sm shadow-rose-100">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Progress Indicator */}
+        <ProgressIndicator currentStep={currentStep} />
+
+        {/* Warning Banner */}
+        <div className="rounded-lg border border-rose-200 bg-rose-50 p-4">
           <p className="text-sm font-semibold text-rose-800">Catatan:</p>
-          <p className="mt-2 text-sm leading-6">
+          <p className="mt-2 text-sm leading-6 text-rose-700">
             Pilih status kerja anda untuk melanjutkan pengisian informasi pekerjaan/studi lanjut atau boleh diisi belum bekerja. Jika anda memilih belum bekerja, pertanyaan di bawah status anda tidak wajib diisi.
           </p>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <SelectField
-              label="Status anda saat ini? *"
-              name="status"
-              value={status}
-              onChange={handleStatusChange}
-              options={statusOptions}
-            />
-          </div>
-        </div>
-
-        {status === "bekerja" && (
-          <SectionBox title="Isi Bagian ini saja jika anda Bekerja">
-            <div className="grid gap-6 sm:grid-cols-2">
-              <InputField
-                label="Dalam berapa bulan anda mendapatkan pekerjaan pertama?"
-                name="durasiBekerja"
-                value={form.durasiBekerja}
-                onChange={handleSectionChange("durasiBekerja")}
-                placeholder="misal: 3"
-                type="number"
-              />
-              <InputField
-                label="Berapa rata-rata pendapatanmu per bulan?"
-                name="pendapatanBekerja"
-                value={form.pendapatanBekerja}
-                onChange={handleSectionChange("pendapatanBekerja")}
-                placeholder="satuan dalam rupiah"
-              />
-              <SelectField
-                label="Dimana anda bekerja? *"
-                name="lokasiBekerja"
-                value={form.lokasiBekerja}
-                onChange={handleSectionChange("lokasiBekerja")}
-                options={[{ value: "", label: "Pilih lokasi" }, ...locationOptions]}
-              />
-              <InputField
-                label="Apa jenis perusahaan atau instansi tempat anda bekerja? *"
-                name="jenisPerusahaanBekerja"
-                value={form.jenisPerusahaanBekerja}
-                onChange={handleSectionChange("jenisPerusahaanBekerja")}
-                placeholder="misal: instansi pemerintahan"
-              />
-              <InputField
-                label="Posisi anda di perusahaan atau instansi? *"
-                name="posisiBekerja"
-                value={form.posisiBekerja}
-                onChange={handleSectionChange("posisiBekerja")}
-                placeholder="misal: Software Developer"
-              />
-              <InputField
-                label="Apa nama perusahaan atau instansi tempat anda bekerja? *"
-                name="namaPerusahaanBekerja"
-                value={form.namaPerusahaanBekerja}
-                onChange={handleSectionChange("namaPerusahaanBekerja")}
-                placeholder="misal: Kominfo"
-              />
-            </div>
-          </SectionBox>
-        )}
-
-        {status === "wirausaha" && (
-          <SectionBox title="Isi Bagian ini saja jika anda Wirausaha">
-            <div className="grid gap-6 sm:grid-cols-2">
-              <InputField
-                label="Dalam berapa bulan setelah lulus anda memulai wirausaha?"
-                name="durasiWirausaha"
-                value={form.durasiWirausaha}
-                onChange={handleSectionChange("durasiWirausaha")}
-                placeholder="misal: 3"
-                type="number"
-              />
-              <InputField
-                label="Berapa rata-rata pendapatan Anda per bulan?"
-                name="pendapatanWirausaha"
-                value={form.pendapatanWirausaha}
-                onChange={handleSectionChange("pendapatanWirausaha")}
-                placeholder="satuan dalam rupiah"
-              />
-              <SelectField
-                label="Dimana lokasi anda bekerja? *"
-                name="lokasiWirausaha"
-                value={form.lokasiWirausaha}
-                onChange={handleSectionChange("lokasiWirausaha")}
-                options={[{ value: "", label: "Pilih lokasi" }, ...locationOptions]}
-              />
-              <InputField
-                label="Apa jenis perusahaan atau instansi tempat anda bekerja? *"
-                name="jenisUsaha"
-                value={form.jenisUsaha}
-                onChange={handleSectionChange("jenisUsaha")}
-                placeholder="misal: instansi pemerintahan"
-              />
-              <InputField
-                label="Bila berwirausaha, apa posisi/jabatan anda saat ini? *"
-                name="posisiWirausaha"
-                value={form.posisiWirausaha}
-                onChange={handleSectionChange("posisiWirausaha")}
-                placeholder="misal: Founder / Pemilik"
-              />
-              <InputField
-                label="Apa nama perusahaan atau instansi tempat anda bekerja? *"
-                name="namaUsaha"
-                value={form.namaUsaha}
-                onChange={handleSectionChange("namaUsaha")}
-                placeholder="misal: Kominfo"
-              />
-            </div>
-          </SectionBox>
-        )}
-
-        {status === "studi_lanjut" && (
-          <SectionBox title="Isi Bagian ini saja jika anda studi lanjut">
-            <div className="grid gap-6 sm:grid-cols-2">
-              <SelectField
-                label="Sumber biaya studi lanjut? *"
-                name="sumberBiaya"
-                value={form.sumberBiaya}
-                onChange={handleSectionChange("sumberBiaya")}
-                options={[{ value: "", label: "Pilih sumber biaya" }, ...studySources]}
-              />
-              <SelectField
-                label="Perguruan Tinggi studi lanjut? *"
-                name="perguruanTinggi"
-                value={form.perguruanTinggi}
-                onChange={handleSectionChange("perguruanTinggi")}
-                options={[{ value: "", label: "Pilih perguruan tinggi" }, ...campusOptions]}
-              />
-              <div className="grid gap-2">
-                <span className="text-sm font-medium text-slate-700">Tanggal Masuk *</span>
-                <input
-                  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                  type="date"
-                  name="tanggalMasuk"
-                  value={form.tanggalMasuk}
-                  onChange={handleSectionChange("tanggalMasuk")}
+        {/* Step 1: Identitas */}
+        {currentStep === 0 && (
+          <div className="space-y-6 rounded-lg bg-white p-6 border border-slate-200">
+            <div>
+              <p className="text-lg font-semibold text-slate-900 mb-4">Data Identitas</p>
+              <div className="space-y-4">
+                <InputField
+                  label="Nama Lengkap"
+                  name="namaLengkap"
+                  placeholder="Masukkan nama lengkap"
+                />
+                <InputField
+                  label="Email"
+                  name="email"
+                  type="email"
+                  placeholder="Masukkan email"
+                />
+                <InputField
+                  label="Nomor Telepon"
+                  name="telepon"
+                  placeholder="Masukkan nomor telepon"
                 />
               </div>
-              <SelectField
-                label="Program Studi? *"
-                name="programStudi"
-                value={form.programStudi}
-                onChange={handleSectionChange("programStudi")}
-                options={[{ value: "", label: "Pilih program studi" }, ...programOptions]}
-              />
             </div>
-          </SectionBox>
+          </div>
         )}
 
+        {/* Step 2: Status Kerja */}
+        {currentStep === 1 && (
+          <div className="space-y-6 rounded-lg bg-white p-6 border border-slate-200">
+            <div>
+              <p className="text-lg font-semibold text-slate-900 mb-4">Status Kerja/Studi</p>
+              <SelectField
+                label="Status anda saat ini? *"
+                name="status"
+                value={status}
+                onChange={handleStatusChange}
+                options={statusOptions}
+              />
+            </div>
+
+            {status === "bekerja" && (
+              <div className="space-y-4 mt-6 pt-6 border-t border-slate-200">
+                <p className="font-medium text-slate-900">Informasi Pekerjaan</p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <InputField
+                    label="Dalam berapa bulan mendapat pekerjaan pertama?"
+                    name="durasiBekerja"
+                    placeholder="misal: 3"
+                    type="number"
+                  />
+                  <InputField
+                    label="Rata-rata pendapatan per bulan"
+                    name="pendapatanBekerja"
+                    placeholder="satuan rupiah"
+                  />
+                  <SelectField
+                    label="Dimana anda bekerja?"
+                    name="lokasiBekerja"
+                    options={[{ value: "", label: "Pilih lokasi" }, ...locationOptions]}
+                  />
+                  <InputField
+                    label="Jenis perusahaan/instansi"
+                    name="jenisPerusahaanBekerja"
+                    placeholder="misal: teknologi"
+                  />
+                  <InputField
+                    label="Posisi di perusahaan"
+                    name="posisiBekerja"
+                    placeholder="misal: Software Developer"
+                  />
+                  <InputField
+                    label="Nama perusahaan/instansi"
+                    name="namaPerusahaanBekerja"
+                    placeholder="misal: PT ABC"
+                  />
+                </div>
+              </div>
+            )}
+
+            {status === "wirausaha" && (
+              <div className="space-y-4 mt-6 pt-6 border-t border-slate-200">
+                <p className="font-medium text-slate-900">Informasi Wirausaha</p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <InputField
+                    label="Berapa bulan setelah lulus mulai wirausaha?"
+                    name="durasiWirausaha"
+                    placeholder="misal: 3"
+                    type="number"
+                  />
+                  <InputField
+                    label="Rata-rata pendapatan bulanan"
+                    name="pendapatanWirausaha"
+                    placeholder="satuan rupiah"
+                  />
+                  <SelectField
+                    label="Dimana lokasi usaha?"
+                    name="lokasiWirausaha"
+                    options={[{ value: "", label: "Pilih lokasi" }, ...locationOptions]}
+                  />
+                  <InputField
+                    label="Jenis usaha"
+                    name="jenisUsaha"
+                    placeholder="misal: e-commerce"
+                  />
+                  <InputField
+                    label="Posisi/jabatan anda"
+                    name="posisiWirausaha"
+                    placeholder="misal: Founder"
+                  />
+                  <InputField
+                    label="Nama usaha/bisnis"
+                    name="namaUsaha"
+                    placeholder="misal: Toko Online ABC"
+                  />
+                </div>
+              </div>
+            )}
+
+            {status === "studi_lanjut" && (
+              <div className="space-y-4 mt-6 pt-6 border-t border-slate-200">
+                <p className="font-medium text-slate-900">Informasi Studi Lanjut</p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <SelectField
+                    label="Sumber biaya studi lanjut?"
+                    name="sumberBiaya"
+                    options={[{ value: "", label: "Pilih sumber biaya" }, ...studySources]}
+                  />
+                  <SelectField
+                    label="Perguruan tinggi tujuan"
+                    name="perguruanTinggi"
+                    options={[{ value: "", label: "Pilih perguruan tinggi" }, ...campusOptions]}
+                  />
+                  <InputField
+                    label="Tanggal masuk"
+                    name="tanggalMasuk"
+                    type="date"
+                  />
+                  <SelectField
+                    label="Program studi"
+                    name="programStudi"
+                    options={[{ value: "", label: "Pilih program studi" }, ...programOptions]}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Step 3: Kompetensi & Proses */}
+        {currentStep === 2 && (
+          <div className="space-y-6 rounded-lg bg-white p-6 border border-slate-200">
+            <div>
+              <p className="text-lg font-semibold text-slate-900 mb-6">Penilaian Kompetensi</p>
+              <div className="grid gap-8 sm:grid-cols-2">
+                <RatingField
+                  label="Etika"
+                  value={form.etika}
+                  onChange={handleSectionChange}
+                  name="etika"
+                />
+                <RatingField
+                  label="Bahasa Inggris"
+                  value={form.bahasaInggris}
+                  onChange={handleSectionChange}
+                  name="bahasaInggris"
+                />
+                <RatingField
+                  label="Komunikasi"
+                  value={form.komunikasi}
+                  onChange={handleSectionChange}
+                  name="komunikasi"
+                />
+                <RatingField
+                  label="Pengorganisasian"
+                  value={form.pengorganisasian}
+                  onChange={handleSectionChange}
+                  name="pengorganisasian"
+                />
+                <RatingField
+                  label="Keanekaragaman Bisnis"
+                  value={form.keanlihanBisnis}
+                  onChange={handleSectionChange}
+                  name="keanlihanBisnis"
+                />
+                <RatingField
+                  label="Penguasaan Teknologi Informasi"
+                  value={form.penguasaanTeknologi}
+                  onChange={handleSectionChange}
+                  name="penguasaanTeknologi"
+                />
+                <RatingField
+                  label="Kerjasama Tim"
+                  value={form.kerjasamaTim}
+                  onChange={handleSectionChange}
+                  name="kerjasamaTim"
+                />
+                <RatingField
+                  label="Pengambilan Keputusan"
+                  value={form.keputusan}
+                  onChange={handleSectionChange}
+                  name="keputusan"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Navigation Buttons */}
         <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
-          <Button type="button" variant="outline" size="md" className="rounded-full px-8">
-            Sebelumnya
+          <Button
+            type="button"
+            onClick={handlePrevious}
+            disabled={currentStep === 0}
+            variant="outline"
+            size="md"
+            className="rounded-lg px-6 py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            ← Sebelumnya
           </Button>
-          <Button type="submit" variant="primary" size="md" className="rounded-full px-8">
-            Selanjutnya
-          </Button>
+          
+          {currentStep === 2 ? (
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              className="rounded-lg px-6 py-2.5 bg-blue-900 text-white hover:bg-blue-800"
+            >
+              Simpan Kuesioner
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              onClick={handleNext}
+              variant="primary"
+              size="md"
+              className="rounded-lg px-6 py-2.5 bg-blue-900 text-white hover:bg-blue-800"
+            >
+              Selanjutnya →
+            </Button>
+          )}
         </div>
       </form>
 
