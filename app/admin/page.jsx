@@ -7,9 +7,9 @@ export default function AdminPage() {
   const [openDropdown1, setOpenDropdown1] = useState(false);
   const [openDropdown2, setOpenDropdown2] = useState(false);
   return (
-    <div className="px-4 py-2">
+    <div className="px-1 py-1">
       {/* Title */}
-      <h1 className="text-3xl font-bold text-gray-900 mb-4">
+      <h1 className="text-3xl font-bold text-gray-900 mb-3">
         Dashboard
       </h1>
 

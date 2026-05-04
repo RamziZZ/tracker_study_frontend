@@ -38,6 +38,26 @@ const WorkIcon = ({ className }) => (
   </svg>
 );
 
+// Event
+const EventIcon = ({ className }) => (
+  <svg viewBox="0 0 32 32" fill="none" className={className}>
+    <path d="M15.7357 8.65233L17.7165 6.67157C19.9468 4.44128 22.8667 3.51617 25.9568 3.365C27.1588 3.3062 27.7597 3.2768 28.2416 3.75872C28.7236 4.24063 28.6941 4.84159 28.6353 6.04353C28.4841 9.13368 27.559 12.0536 25.3288 14.2838L23.348 16.2646C21.7168 17.8958 21.2531 18.3597 21.5955 20.129C21.9335 21.4806 22.2605 22.7894 21.2777 23.7722C20.0856 24.9643 18.9981 24.9643 17.806 23.7722L8.22809 14.1943C7.03597 13.0022 7.03593 11.9147 8.22809 10.7226C9.21088 9.7398 10.5197 10.0669 11.8713 10.4049C13.6406 10.7473 14.1045 10.2835 15.7357 8.65233Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+    <path d="M3.33398 28.6667L10.0007 22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <path d="M11.334 28.6667L14.0007 26" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <path d="M3.33398 20.6667L6.00065 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <path d="M22.834 9.33333H22.6673M23.0007 9.33333C23.0007 9.51743 22.8515 9.66667 22.6673 9.66667C22.4832 9.66667 22.334 9.51743 22.334 9.33333C22.334 9.14924 22.4832 9 22.6673 9C22.8515 9 23.0007 9.14924 23.0007 9.33333Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+// pengajuan akun
+const AccountRequestIcon = ({ className }) => (
+  <svg viewBox="0 0 32 32" fill="none" className={className}>
+    <path d="M26.6673 29.3337H8.00065C6.52789 29.3337 5.33398 28.1398 5.33398 26.667M5.33398 26.667C5.33398 25.1942 6.52789 24.0003 8.00065 24.0003H26.6673V8.00033C26.6673 5.48617 26.6673 4.22909 25.8863 3.44805C25.1052 2.66699 23.8481 2.66699 21.334 2.66699H13.334C9.56274 2.66699 7.67713 2.66699 6.50556 3.83857C5.33398 5.01014 5.33398 6.89575 5.33398 10.667V26.667Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M25.9993 24C25.9993 24 24.666 25.0171 24.666 26.6667C24.666 28.3163 25.9993 29.3333 25.9993 29.3333" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M16.0007 13.3333C17.4734 13.3333 18.6673 12.1394 18.6673 10.6667C18.6673 9.19391 17.4734 8 16.0007 8C14.5279 8 13.334 9.19391 13.334 10.6667C13.334 12.1394 14.5279 13.3333 16.0007 13.3333Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M21.3327 18.6663C21.3327 15.7209 18.9448 13.333 15.9993 13.333C13.0538 13.333 10.666 15.7209 10.666 18.6663" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
 // Setting
 const SettingIcon = ({ className }) => (
   <svg viewBox="0 0 32 32" fill="none" className={className}>
@@ -54,7 +74,9 @@ const navItems = [
   { label: "Dashboard", href: "/admin", icon: HomeIcon },
   { label: "Kuesioner", href: "/admin/kuesioner", icon: BookIcon },
   { label: "Data Alumni", href: "/admin/alumni", icon: AlumniIcon },
-  { label: "Info Loker", href: "/admin/loker", icon: WorkIcon },
+  { label: "Pengajuan Akun", href: "/admin/pengajuan-akun", icon: AccountRequestIcon },
+  { label: "Loker", href: "/admin/loker", icon: WorkIcon },
+  { label: "Event", href: "/admin/event", icon: EventIcon },
 ];
 
 const bottomItems = [

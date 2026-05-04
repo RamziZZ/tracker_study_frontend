@@ -13,7 +13,7 @@ export default function KuesionersPage() {
   const [filterData, setFilterData] = useState("");
 
   return (
-    <div className="min-h-screen bg-gray-100 px-12 py-6 font-sans">
+    <div className="min-h-screen px-12 py-6 font-sans">
       <HeaderAdmin />
       <FilterAdmin
         search={search}
