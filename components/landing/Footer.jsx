@@ -4,7 +4,7 @@ import { TelegramFreeIcons, TiktokFreeIcons, InstagramFreeIcons, WhatsappFreeIco
 export default function Footer() {
   const JTI_LINKS = [
     { name: 'JTI POLIJE', href: 'https://jti.polije.ac.id/' },
-    { name: 'E-Learning JTI', href: 'https://elearning-jti.polije.ac.id/' },
+    { name: 'S-Learn JTI', href: 'https://slearn-jti.com/' },
     { name: 'Publikasi JTI', href: 'http://jtit.polije.ac.id/' },
     { name: 'Pusat Karir Polije', href: 'https://pusatkarir.polije.ac.id/' },
     { name: 'SiM Online', href: 'http://sim-online.polije.ac.id/' },
@@ -93,7 +93,7 @@ export default function Footer() {
       {/* Bottom */}
       <div className="bg-gray-900 px-6 py-4 flex flex-col md:flex-row justify-between items-end text-sm">
         <span>TIF PSDKU Nganjuk</span>
-        <span className='text-gray-400 font-normal opacity-50'>© Copyright Barisan_wong_ruwet_Team 2026</span>
+        <span className='text-gray-400 font-normal opacity-50'>© Copyright PT Barisan_wong_ruwet_Team Corporations 2026</span>
       </div>
     </footer>
   );
