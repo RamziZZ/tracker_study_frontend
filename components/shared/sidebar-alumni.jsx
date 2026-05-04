@@ -20,15 +20,6 @@ const BookIcon = ({ className }) => (
   </svg>
 );
 
-// Alumni
-const AlumniIcon = ({ className }) => (
-  <svg viewBox="0 0 32 32" fill="none" className={className}>
-    <path d="M2.66406 10.6657C2.66406 12.455 13.4591 17.3333 15.9809 17.3333C18.5029 17.3333 29.2979 12.455 29.2979 10.6657C29.2979 8.87639 18.5029 3.99805 15.9809 3.99805C13.4591 3.99805 2.66406 8.87639 2.66406 10.6657Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M7.99023 14.667L9.65862 22.4006C9.7729 22.9303 10.0367 23.4253 10.4766 23.7409C13.4389 25.8667 18.5217 25.8667 21.4841 23.7409C21.9241 23.4253 22.1879 22.9303 22.3021 22.4006L23.9705 14.667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M27.3025 12.666V22.0008" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-  </svg>
-);
-
 // Info Loker
 const WorkIcon = ({ className }) => (
   <svg viewBox="0 0 32 32" fill="none" className={className}>
@@ -51,22 +42,21 @@ const SettingIcon = ({ className }) => (
 
 // ================= DATA =================
 const navItems = [
-  { label: "Dashboard", href: "/admin", icon: HomeIcon },
-  { label: "Kuesioner", href: "/admin/kuesioner", icon: BookIcon },
-  { label: "Data Alumni", href: "/admin/alumni", icon: AlumniIcon },
-  { label: "Info Loker", href: "/admin/loker", icon: WorkIcon },
+  { label: "Dashboard", href: "/alumni", icon: HomeIcon },
+  { label: "Kuesioner", href: "/alumni/kuesioner", icon: BookIcon },
+  { label: "Info Loker", href: "/alumni/loker", icon: WorkIcon },
 ];
 
 const bottomItems = [
-  { label: "Pengaturan", href: "/admin/pengaturan", icon: SettingIcon },
+  { label: "Pengaturan", href: "/alumni/pengaturan", icon: SettingIcon },
 ];
 
 // ================= COMPONENT =================
-export default function Sidebar() {
+export default function SidebarAlumni() {
   const pathname = usePathname();
 
   const isActive = (href) =>
-    pathname === href || (href !== "/admin" && pathname.startsWith(href));
+    pathname === href || (href !== "/alumni" && pathname.startsWith(href));
 
   const linkClass = (href) =>
     `flex items-center gap-3 px-5 py-3 rounded-lg text-[15px] transition-all duration-200 ${
@@ -79,9 +69,12 @@ export default function Sidebar() {
     isActive(href) ? "text-blue-500" : "text-gray-500";
 
   return (
-    <aside className="w-[220px] mt-1 ml-4 bg-white rounded-lg shadow-sm flex flex-col pt-3 pb-5 px-3">
-      
-      <nav className="flex flex-col gap-2 flex-1 mt-2">
+    <aside className="w-[220px] h-screen sticky top-0 bg-white rounded-lg shadow-sm flex flex-col pt-4 pb-5 px-3 overflow-y-auto">
+      <div className="mb-5 flex items-center gap-3 px-3">
+        <div className="h-12 w-12 rounded-2xl bg-slate-200" />
+      </div>
+
+      <nav className="flex flex-col gap-2 flex-1">
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
