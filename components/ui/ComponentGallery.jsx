@@ -9,7 +9,7 @@ import {
   IconBook,
   IconHome,
   IconChevronDown,
-  IconCalendar,
+//   IconCalendar,
   IconMail,
   IconTelegram,
   IconWhatsapp,
@@ -107,7 +107,7 @@ export default function ComponentGallery() {
             value={form.email}
             onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
             variant="outline"
-            icon={IconCalendar}
+            icon={IconMail}
           />
           <div className="flex flex-wrap items-center gap-3">
             <Button

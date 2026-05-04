@@ -1,119 +1,44 @@
 "use client";
 
-<<<<<<< HEAD
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 
 export default function Navbar() {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
+
+  const navigation = [
+    { href: "/", name: "Home", },
+    { href: "/cari-alumni", name: "Tracking Alumni", },
+    { href: "/loker", name: "Informasi Loker", },
+    { href: "/tentang", name: "Tentang", },
+  ];
+
+  function classNames(...classes) {
+    return classes.filter(Boolean).join(' ')
+  }
 
   return (
-    <nav className="bg-white shadow px-6 py-4">
-      <div className="flex justify-between items-center">
-        
-        {/* Logo */}
-        <h1 className="font-bold text-blue-700">Tracer Study</h1>
+    <nav className="sticky top-0 z-50 bg-transparent backdrop-blur-sm border-b border-blue-50">
+      <div className="sticky flex justify-between items-center px-6 py-4">
+        <Image alt="" src={'/icon-web/logo-tracer-study_1.webp'} width={180} height={24}/>
 
-        {/* Desktop Menu */}
-        <div className="hidden md:flex gap-6 items-center">
-          <NavLink href="/home" label="Home" pathname={pathname} />
-          <NavLink href="/home/cari-alumni" label="Tracking Alumni" pathname={pathname} />
-          <NavLink href="/home/loker" label="Informasi Loker" pathname={pathname} />
-          <NavLink href="/home/tentang" label="Tentang" pathname={pathname} />
-
-          <button className="bg-blue-700 text-white px-4 py-2 rounded-full">
-            Login
-          </button>
+        <div className="flex gap-6 text-gray-500">
+          {navigation.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={pathname === link.href ? "active text-blue-500 hover:text-blue-300 duration-300" : "hover:text-blue-300 duration-300"}
+            >
+              {link.name}
+            </Link>
+          ))}
         </div>
 
-        {/* Hamburger Button */}
-        <button
-          className="md:hidden text-2xl"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          ☰
+        <button className="bg-blue-500 text-blue-50 px-10 py-2 rounded-full hover:bg-blue-400 hover:shadow-md shadow-blue-200 hover:text-white duration-300 cursor-pointer">
+          Login
         </button>
       </div>
-
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden mt-4 flex flex-col gap-4">
-          <NavLink href="/home" label="Home" pathname={pathname} />
-          <NavLink href="/home/cari-alumni" label="Tracking Alumni" pathname={pathname} />
-          <NavLink href="/home/loker" label="Informasi Loker" pathname={pathname} />
-          <NavLink href="/home/tentang" label="Tentang" pathname={pathname} />
-
-          <button className="bg-blue-700 text-white px-4 py-2 rounded-full w-full">
-            Login
-          </button>
-        </div>
-      )}
     </nav>
-  );
-}
-
-/* 🔹 Reusable NavLink */
-function NavLink({ href, label, pathname }) {
-  return (
-    <Link
-      href={href}
-      className={
-        pathname === href
-          ? "text-blue-700 font-semibold"
-          : "text-gray-700 hover:text-blue-500"
-      }
-    >
-      {label}
-    </Link>
-=======
-import Image from "next/image";
-import { ChevronDown } from "lucide-react";
-import { useState } from "react";
-
-export default function Navbar() {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  return (
-    <header className="w-full bg-white rounded-lg shadow-sm px-6 h-[60px] flex items-center justify-between">
-      <div className="flex items-center">
-        <Image
-          src="/icons/logo_tracer_study.png"
-          alt="Tracker Study"
-          width={160}
-          height={40}
-          className="object-contain"
-        />
-      </div>
-
-      {/* User Profile */}
-      <div className="relative">
-        <button
-          onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-50 transition-colors"
-        >
-          <div className="w-9 h-9 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 ring-2 ring-gray-100">
-            
-          </div>
-          <div className="text-left hidden sm:block">
-            
-          </div>
-          <ChevronDown
-            size={15}
-            className={`text-gray-400 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
-          />
-        </button>
-
-        {dropdownOpen && (
-          <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-md shadow-lg py-1 z-50">
-            <a href="/admin/pengaturan" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Pengaturan</a>
-            <hr className="my-1 border-gray-100" />
-            <button className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50">Keluar</button>
-          </div>
-        )}
-      </div>
-    </header>
->>>>>>> origin/main
   );
 }
