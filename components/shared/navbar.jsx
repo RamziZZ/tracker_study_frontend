@@ -16,6 +16,7 @@ export default function Navbar() {
     { href: "/", name: "Home", },
     { href: "/cari-alumni", name: "Tracking Alumni", },
     { href: "/loker", name: "Informasi Loker", },
+    { href: "/event", name: "Event", },
     { href: "/tentang", name: "Tentang", },
   ];
 
@@ -23,42 +24,10 @@ export default function Navbar() {
     return classes.filter(Boolean).join(' ')
   }
 
-  return (
-    // <nav className="sticky top-0 z-50 bg-transparent backdrop-blur-sm border-b border-blue-50">
-    //   <div className="sticky flex justify-between items-center px-6 py-4">
-    //     <Image alt="" src={'/icon-web/logo-tracer-study_1.webp'} width={180} height={24}/>
-
-    //     <div className="flex gap-6 text-gray-500">
-    //       {navLinks.map((link) => (
-    //         <Link
-    //           key={link.href}
-    //           href={link.href}
-    //           className={pathname === link.href ? "active text-blue-500 hover:text-blue-300 duration-300" : "hover:text-blue-300 duration-300"}
-    //         >
-    //           {link.label}
-    //         </Link>
-    //       ))}
-    //     </div>
-
-    //     <button className="bg-blue-500 text-blue-50 px-10 py-2 rounded-full hover:bg-blue-400 hover:shadow-md shadow-blue-200 hover:text-white duration-300 cursor-pointer">
-    //       Login
-    //     </button>
-    //   </div>
-      
-    // </nav>
-    
-
-    // const navigation = [
-    //   { name: 'Dashboard', href: '#', current: true },
-    //   { name: 'Team', href: '#', current: false },
-    //   { name: 'Projects', href: '#', current: false },
-    //   { name: 'Calendar', href: '#', current: false },
-    // ]
-
-    
+  return (    
     <Disclosure
       as="nav"
-      className="sticky top-0 z-50 bg-transparent backdrop-blur-sm border-b border-blue-50 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10"
+      className="sticky top-0 z-50 bg-blue-50/75 backdrop-blur-sm border-b border-blue-50 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10"
     >
       <div className="sticky mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div className="sticky flex h-16 items-center justify-between">
@@ -83,9 +52,9 @@ export default function Navbar() {
                 ))}
               </div>
             </div>
-            <button className="bg-blue-500 text-blue-50 px-10 py-2 hidden lg:block rounded-full hover:bg-blue-400 hover:shadow-md shadow-blue-200 hover:text-white duration-300 cursor-pointer">
+            <a href='/auth/login/' className="bg-blue-500 text-blue-50 px-10 py-2 hidden lg:block rounded-full hover:bg-blue-400 hover:shadow-md shadow-blue-200 hover:text-white duration-300 cursor-pointer">
               Login
-            </button>
+            </a>
           </div>
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
             {/* <button
