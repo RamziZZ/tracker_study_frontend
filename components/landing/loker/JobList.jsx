@@ -11,21 +11,21 @@ export default function JobList() {
         {/* <p className="text-sm md:text-lg text-center text-gray-600">
           Akses terbuka untuk publik. Menghubungkan telanta terbaik dengan perusahaan
         </p> */}
-      </div>
-      
-
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
-        {[1,2,3,4,5,6].map((item) => (
-          <JobCard
-            key={item}
-            label={'Fron End Dev'}
-            company={'Canva'}
-            comp_image={'/test_company.png'}
-            periode={'3 Mar - 2 Aug 2026'}
-            time={'Fulltime'}
-            type={'Onsite'}
-          />
-        ))}
+        <div className='w-full max-w-7xl'>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+            {[1,2,3,4,5,6].map((item) => (
+              <JobCard
+                key={item}
+                label={'Fron End Dev'}
+                company={'Canva'}
+                comp_image={'/test_company.png'}
+                periode={'3 Mar - 2 Aug 2026'}
+                time={'Fulltime'}
+                type={'Onsite'}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
