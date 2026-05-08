@@ -24,8 +24,8 @@ export default function Footer() {
 
   const SOCIAL_LINK = [
     {icon: TelegramFreeIcons, href: 'https://web.telegram.org/a/#885057659'},
-    {icon: Mail01FreeIcons, href: ''},
-    {icon: WhatsappFreeIcons, href: ''},
+    // {icon: Mail01FreeIcons, href: ''},
+    // {icon: WhatsappFreeIcons, href: ''},
     {icon: InstagramFreeIcons, href: 'https://www.instagram.com/tif.nganjuk?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=='},
     {icon: TiktokFreeIcons, href: 'https://www.tiktok.com/@tif.nganjuk?is_from_webapp=1&sender_device=pc'},
     {icon: YoutubeFreeIcons, href: 'https://www.youtube.com/@TIFNganjuk'}

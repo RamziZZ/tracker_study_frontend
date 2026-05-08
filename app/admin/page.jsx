@@ -7,9 +7,9 @@ export default function AdminPage() {
   const [openDropdown1, setOpenDropdown1] = useState(false);
   const [openDropdown2, setOpenDropdown2] = useState(false);
   return (
-    <div className="px-1 py-1">
+    <div className="px-4 py-2">
       {/* Title */}
-      <h1 className="text-3xl font-bold text-gray-900 mb-3">
+      <h1 className="text-3xl font-bold text-gray-900 mb-4">
         Dashboard
       </h1>
 
@@ -197,7 +197,7 @@ export default function AdminPage() {
   </div>
 </div>
 
-{/* ===== HEADER ===== */}
+{/* /* ===== HEADER ===== */ }
 <div className="flex justify-between items-center mb-5">
   <h2 className="text-2xl font-semibold text-gray-800">
     Pengisian Kuisioner Terbaru
@@ -214,7 +214,7 @@ export default function AdminPage() {
   </button>
 </div>
 
-{/* ===== TABLE ===== */}
+{/* /* ===== TABLE ===== */ }
 <div className="bg-white rounded-xl overflow-hidden">
   <table className="w-full text-sm">
 

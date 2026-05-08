@@ -1,4 +1,4 @@
-import JobCard from "./JobCard";
+import JobCard from "@/app/componets/JobCard";
 
 export default function ResultSection() {
   const jobs = [
