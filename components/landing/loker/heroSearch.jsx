@@ -12,7 +12,7 @@ import {
     SelectValue,
 } from "@/components/ui/select.tsx";
 
-export default function HeadSearch() {
+export default function HeroSearch() {
     const [value, setValue] = useState("");
 
     return (
@@ -90,7 +90,7 @@ export default function HeadSearch() {
                     </div>
                 </div>
 
-                <button type="submit" className="bg-blue-700 flex justify-center w-full text-white px-6 py-4 rounded-full hover:bg-blue-600 hover:text-blue-50 active:bg-blue-500 duration-300 cursor-pointer">
+                <button type="submit" className="bg-blue-500 flex justify-center w-full text-white px-6 py-4 rounded-full hover:bg-blue-400 hover:text-blue-50 hover:shadow-lg shadow-blue-200/75 hover:scale-101 active:bg-blue-300 duration-300 cursor-pointer">
                     Cari Alumni
                 </button>
             </form>
