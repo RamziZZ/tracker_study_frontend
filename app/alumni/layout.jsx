@@ -3,10 +3,10 @@ import SidebarAlumni from "@/components/shared/sidebar-alumni";
 
 export default function AlumniLayout({ children }) {
   return (
-    <div className="bg-slate-50 min-h-screen">
+    <div className="flex flex-col bg-slate-50 max-h-screen overflow-x-hidden">
       <NavbarAlumni />
-      <div className="flex px-4 pb-4 gap-4">
-        <SidebarAlumni />
+      <div className="flex h-full px-5 py-5 gap-5 overflow-x-hidden">
+        <SidebarAlumni className="h-full" />
         <main className="flex-1">
           {children}
         </main>

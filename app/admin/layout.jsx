@@ -3,11 +3,11 @@ import Sidebar from "@/components/shared/sidebar-admin";
 
 export default function AdminLayout({ children }) {
   return (
-    <div className="bg-blue-50 min-h-screen">
-      <div className="p-4">
+    <div className="flex flex-col bg-blue-50 max-h-screen overflow-x-hidden">
+      <div className="px-5 pt-5">
         <Navbar />
       </div>
-      <div className="flex px-4 pb-4 gap-4">
+      <div className="flex h-full overflow-x-hidden px-4 py-4 gap-4">
         <Sidebar />
         <main className="flex-1">
           {children}

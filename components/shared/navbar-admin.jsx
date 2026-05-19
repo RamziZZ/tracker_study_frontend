@@ -8,7 +8,7 @@ export default function NavbarAdmin() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <header className="w-full bg-white rounded-lg shadow-sm px-6 h-[60px] flex items-center justify-between">
+    <header className="w-full bg-white rounded-lg border border-gray-200 pr-2 pl-4 h-fit py-2 flex items-center justify-between">
       <div className="flex items-center">
         <Image
           src="/icons/logo_tracer_study.png"
@@ -20,12 +20,12 @@ export default function NavbarAdmin() {
       </div>
 
       {/* User Profile */}
-      <div className="relative">
+      {/* <div className="relative">
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
           className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-50 transition-colors"
         >
-          <div className="w-9 h-9 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 ring-2 ring-gray-100">
+          <div className="w-9 h-9 rounded-full overflow-hidden bg-gray-200 shrink-0 ring-2 ring-gray-100">
             
           </div>
           <div className="text-left hidden sm:block">
@@ -44,6 +44,29 @@ export default function NavbarAdmin() {
             <button className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50">Keluar</button>
           </div>
         )}
+      </div> */}
+      <div className="flex items-center gap-3 bg-transparent py-1.5">
+        <div className="h-10 w-10 rounded-full bg-slate-300" />
+        <div className="text-left">
+          <p className="text-sm font-semibold text-slate-900">Soekarno</p>
+          <p className="text-xs text-slate-500">Admin 1</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setDropdownOpen(!dropdownOpen)}
+          className="text-slate-500 pr-2 hover:text-slate-700"
+          aria-label="Open profile menu"
+        >
+          <svg viewBox="0 0 20 20" fill="none" className="h-6 w-6">
+            <path
+              d="M6 8l4 4 4-4"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
       </div>
     </header>
   );

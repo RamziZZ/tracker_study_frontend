@@ -69,17 +69,17 @@ export default function SidebarAlumni() {
     isActive(href) ? "text-blue-500" : "text-gray-500";
 
   return (
-    <aside className="w-[220px] h-screen sticky top-0 bg-white rounded-lg shadow-sm flex flex-col pt-4 pb-5 px-3 overflow-y-auto">
-      <div className="mb-5 flex items-center gap-3 px-3">
+    <aside className="w-55 sticky top-0 bg-white rounded-lg shadow-sm flex flex-col pt-8 pb-5 px-3 overflow-y-auto">
+      {/* <div className="mb-5 flex items-center gap-3 px-3">
         <div className="h-12 w-12 rounded-2xl bg-slate-200" />
-      </div>
+      </div> */}
 
       <nav className="flex flex-col gap-2 flex-1">
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
             <Link key={item.href} href={item.href} className={linkClass(item.href)}>
-              <Icon className={`w-[20px] h-[20px] ${iconClass(item.href)}`} />
+              <Icon className={`w-5 h-5 ${iconClass(item.href)}`} />
               <span>{item.label}</span>
             </Link>
           );
@@ -93,7 +93,7 @@ export default function SidebarAlumni() {
           const Icon = item.icon;
           return (
             <Link key={item.href} href={item.href} className={linkClass(item.href)}>
-              <Icon className={`w-[20px] h-[20px] ${iconClass(item.href)}`} />
+              <Icon className={`w-5 h-5 ${iconClass(item.href)}`} />
               <span>{item.label}</span>
             </Link>
           );

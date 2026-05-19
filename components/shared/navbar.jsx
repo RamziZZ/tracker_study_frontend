@@ -52,7 +52,7 @@ export default function Navbar() {
                 ))}
               </div>
             </div>
-            <a href='/auth/login/' className="bg-blue-500 text-blue-50 px-10 py-2 hidden lg:block rounded-full hover:bg-blue-400 hover:shadow-md shadow-blue-200 hover:text-white duration-300 cursor-pointer">
+            <a href='/login' className="bg-blue-500 text-blue-50 px-10 py-2 hidden lg:block rounded-full hover:bg-blue-400 hover:shadow-md shadow-blue-200 hover:text-white duration-300 cursor-pointer">
               Login
             </a>
           </div>

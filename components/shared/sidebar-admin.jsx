@@ -101,14 +101,14 @@ export default function Sidebar() {
     isActive(href) ? "text-blue-500" : "text-gray-500";
 
   return (
-    <aside className="w-[220px] h-screen sticky top-0 bg-white rounded-lg shadow-sm flex flex-col pt-3 pb-5 px-3 overflow-y-auto">
+    <aside className="w-55 max-h-screen sticky top-0 bg-white rounded-lg shadow-sm flex flex-col pt-3 pb-5 px-3 overflow-y-auto">
       
       <nav className="flex flex-col gap-2 flex-1 mt-2">
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
             <Link key={item.href} href={item.href} className={linkClass(item.href)}>
-              <Icon className={`w-[20px] h-[20px] ${iconClass(item.href)}`} />
+              <Icon className={`w-5 h-5 ${iconClass(item.href)}`} />
               <span>{item.label}</span>
             </Link>
           );
@@ -122,7 +122,7 @@ export default function Sidebar() {
           const Icon = item.icon;
           return (
             <Link key={item.href} href={item.href} className={linkClass(item.href)}>
-              <Icon className={`w-[20px] h-[20px] ${iconClass(item.href)}`} />
+              <Icon className={`w-5 h-5 ${iconClass(item.href)}`} />
               <span>{item.label}</span>
             </Link>
           );
