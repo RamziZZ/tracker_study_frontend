@@ -9,28 +9,28 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Jika user sudah login (punya token & role) dan mencoba akses halaman login
-  if (pathname === "/auth/login" && token && userRole) {
+  if (pathname === "/login" && token && userRole) {
     if (userRole === "admin")
-      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+      return NextResponse.redirect(new URL("/admin", request.url));
     if (userRole === "dosen")
-      return NextResponse.redirect(new URL("/dosen/dashboard", request.url));
+      return NextResponse.redirect(new URL("/dosen", request.url));
     if (userRole === "alumni")
-      return NextResponse.redirect(new URL("/alumni/dashboard", request.url));
+      return NextResponse.redirect(new URL("/alumni", request.url));
   }
 
   // Proteksi route Admin
   if (pathname.startsWith("/admin") && userRole !== "admin") {
-    return NextResponse.redirect(new URL("/auth/login", request.url));
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   // Proteksi route Dosen
   if (pathname.startsWith("/dosen") && userRole !== "dosen") {
-    return NextResponse.redirect(new URL("/auth/login", request.url));
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   // Proteksi route Alumni
   if (pathname.startsWith("/alumni") && userRole !== "alumni") {
-    return NextResponse.redirect(new URL("/auth/login", request.url));
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   return NextResponse.next();

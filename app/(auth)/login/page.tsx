@@ -210,9 +210,9 @@ export default function LoginPage() {
 
   // fungsi untuk redirect user berdasarkan role
   const redirectUser = (role) => {
-    if (role === 'admin') router.push("/admin/dashboard");
-    else if (role === 'dosen') router.push("/dosen/dashboard");
-    else if (role === 'alumni') router.push("/alumni/dashboard");
+    if (role === 'admin') router.push("/admin");
+    else if (role === 'dosen') router.push("/dosen");
+    else if (role === 'alumni') router.push("/alumni");
     else router.push("/");
   };
 

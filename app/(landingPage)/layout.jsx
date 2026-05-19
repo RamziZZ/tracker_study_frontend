@@ -1,6 +1,7 @@
 // import "./globals.css";
+import Navbar from "@/components/shared/navbar";
 
-export default function RootLayout({ children }) {
+export default function LandingLayout({ children }) {
   return (
     // <html lang="en">
     //   <body>
@@ -9,6 +10,7 @@ export default function RootLayout({ children }) {
     //   </body>
     // </html>
     <>
+      <Navbar />
       {children}
     </>
   );
