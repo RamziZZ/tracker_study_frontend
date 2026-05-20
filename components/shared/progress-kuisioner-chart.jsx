@@ -28,8 +28,8 @@ export default function ProgressKuisionerChart({ value }) {
     responsive: true,
   };
 
-  return (  
-    <div className="relative flex h-48 w-48 items-center justify-center">
+  return (
+    <div className="relative flex h-full w-auto items-center justify-center">
       <Doughnut data={data} options={options} />
       <div className="absolute flex flex-col items-center justify-center text-center">
         <span className="text-3xl font-bold text-gray-900">{value}%</span>

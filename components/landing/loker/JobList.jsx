@@ -8,9 +8,6 @@ export default function JobList() {
           Hasil Pencarian Anda
           {/* <br /> dalam Karier Anda */}
         </h2>
-        {/* <p className="text-sm md:text-lg text-center text-gray-600">
-          Akses terbuka untuk publik. Menghubungkan telanta terbaik dengan perusahaan
-        </p> */}
         <div className='w-full max-w-7xl'>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
             {[1,2,3,4,5,6].map((item) => (
