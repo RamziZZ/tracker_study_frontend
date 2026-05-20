@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ChevronDown } from "lucide-react";
+// import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 
 export default function NavbarAdmin() {
@@ -11,7 +11,7 @@ export default function NavbarAdmin() {
     <header className="w-full bg-white rounded-lg border border-gray-200 pr-2 pl-4 h-fit py-2 flex items-center justify-between">
       <div className="flex items-center">
         <Image
-          src="/icons/logo_tracer_study.png"
+          src="/icon-web/logo_tracer_study_1.webp"
           alt="Tracker Study"
           width={160}
           height={40}

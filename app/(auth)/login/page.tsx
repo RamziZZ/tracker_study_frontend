@@ -255,7 +255,7 @@ export default function LoginPage() {
           <form onSubmit={handleLogin}>
             <FieldGroup>
               <div className="flex justify-center shrink-0 items-center">
-                <Image alt="" src={'/icon-web/logo-tracer-study_1.webp'} width={250} height={24}/>
+                <Image alt="" src={'/icon-web/logo_tracer_study_1.webp'} width={250} height={24}/>
               </div>
               <FieldSet>
                 <FieldLegend className="text-2xl! w-full text-center">Masuk Ke Tracker Study</FieldLegend>

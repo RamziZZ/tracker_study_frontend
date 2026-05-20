@@ -21,7 +21,7 @@ export default function NavbarAlumni() {
         <div className="flex items-center justify-between pr-2 pl-4 h-fit py-2 ">
           <div className="flex items-center gap-3">
             <Image
-              src="/logotracer.png"
+              src="/icon-web/logo_tracer_study_1.webp"
               alt="Tracker Study Logo"
               width={180}
               height={72}

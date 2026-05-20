@@ -33,7 +33,7 @@ export default function Navbar() {
         <div className="sticky flex h-16 items-center justify-between">
           <div className="w-full flex flex-1 items-center justify-between sm:items-stretch">
             <div className="flex shrink-0 items-center">
-              <Image alt="" src={'/icon-web/logo-tracer-study_1.webp'} width={180} height={24}/>
+              <Image alt="" src={'/icon-web/logo_tracer_study_1.webp'} width={180} height={24}/>
             </div>
             <div className="hidden sm:ml-6 lg:block">
               <div className="flex space-x-4">
