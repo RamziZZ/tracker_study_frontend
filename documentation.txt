@@ -1,0 +1,81 @@
+# Dokumentasi Backend API Tracer Study
+
+## 1. Pendahuluan
+Proyek ini adalah sistem backend untuk aplikasi Tracer Study yang dibangun menggunakan framework Laravel. Sistem ini mengelola data alumni, kuesioner, berita, dan lowongan pekerjaan.
+
+## 2. Arsitektur Sistem
+Aplikasi ini menggunakan pola arsitektur **Service-Repository Pattern** untuk memisahkan logika bisnis dari akses data:
+
+*   **Models**: Definisi entitas data menggunakan Eloquent ORM.
+*   **Contracts (Interfaces)**: Abstraksi untuk Repository (e.g., `UserRepositoryInterface`).
+*   **Repositories**: Implementasi akses data langsung ke database.
+*   **Services**: Lapisan logika bisnis utama (e.g., `UserService`, `AlumniService`).
+*   **Controllers**: Menangani request HTTP, memanggil Service, dan mengembalikan JSON Response.
+*   **Resources**: Transformasi model database menjadi format JSON API yang konsisten.
+
+## 3. Sistem Otentikasi dan Otorisasi
+
+### Otentikasi
+Sistem menggunakan **Laravel Sanctum** untuk otentikasi berbasis token.
+1.  **Login**: User mengirimkan email dan password ke `/api/login`.
+2.  **Token**: Jika valid, sistem mengembalikan `access_token` (Bearer Token).
+3.  **Logout**: Token dihapus dari sistem untuk mengakhiri sesi.
+
+### Otorisasi
+Akses kontrol dibatasi menggunakan middleware:
+*   `auth:sanctum`: Memastikan user telah login.
+*   `role:admin`: Membatasi akses hanya untuk pengguna dengan peran admin (seperti pengelolaan user, berita, dan lowongan).
+
+## 4. Daftar API Endpoints
+
+### A. Otentikasi
+*   `POST /api/login`: Otentikasi pengguna.
+*   `POST /api/logout`: Menghapus sesi (Perlu login).
+
+### B. Manajemen Alumni (Perlu Login)
+*   `GET /api/alumni/me`: Mendapatkan profil alumni yang sedang login.
+*   `POST /api/alumni/update`: Memperbarui profil (termasuk update data user).
+*   `GET /api/alumni`: Mendapatkan daftar semua alumni.
+
+### C. Berita (News)
+*   `GET /api/news`: Menampilkan daftar berita yang dipublikasikan (Publik).
+*   `GET /api/news/{slug}`: Menampilkan detail berita berdasarkan slug (Publik).
+*   `POST /api/news`: Membuat berita baru (Admin).
+*   `POST /api/news/{id}`: Memperbarui berita/thumbnail (Admin).
+*   `DELETE /api/news/{id}`: Menghapus berita (Admin).
+
+### D. Lowongan Pekerjaan (Job Vacancy)
+*   `GET /api/jobs`: Menampilkan daftar lowongan aktif (Publik).
+*   `POST /api/jobs`: Membuat lowongan baru (Admin).
+*   `POST /api/jobs/{id}`: Memperbarui lowongan (Admin).
+*   `DELETE /api/jobs/{id}`: Menghapus lowongan (Admin).
+
+### E. Kuesioner (Tracer Study)
+*   `GET /api/questionnaires`: Mendapatkan kuesioner aktif dan struktur pertanyaannya.
+*   `POST /api/questionnaires/submit`: Mengirimkan jawaban kuesioner.
+*   `GET /api/questionnaires/{id}/my-answers`: Melihat riwayat jawaban user.
+
+### F. Manajemen User (Hanya Admin)
+*   `GET /api/users`: List semua user.
+*   `POST /api/users`: Membuat user baru (otomatis membuat record alumni jika role='alumni').
+*   `PUT /api/users/{id}`: Update data user.
+*   `DELETE /api/users/{id}`: Hapus user.
+
+## 5. Struktur Data Utama (Database)
+
+### Tabel `users`
+Menyimpan kredensial: `id`, `username`, `email`, `password`, `role` (admin/alumni).
+
+### Tabel `alumnis`
+Detail alumni: `id`, `user_id`, `name`, `nim`, `nik`, `npwp`, `phone_number`, `img_profile`, `privacy_settings`, `tahun_lulus`, `kdpstmsmh`, `status`.
+
+### Tabel `news`
+Konten berita: `id`, `user_id`, `title`, `slug`, `content`, `thumbnail`, `category`, `is_published`.
+
+### Tabel `job_vacancies`
+Informasi lowongan: `id`, `user_id`, `title`, `company`, `description`, `location`, `category`, `poster_image`, `is_active`, `expired_at`.
+
+### Sistem Kuesioner
+Terdiri dari tabel `questionnaires`, `questions` (mendukung tipe text, radio, checkbox, dsb), `question_options`, dan `answers`.
+
+*Dokumentasi ini bersifat teknis untuk pengembang backend dan frontend.*

@@ -1,16 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "../ui/button";
 import { KuesionerPopup } from "../ui/kuesioner-popup";
-
-const statusOptions = [
-  { value: "", label: "Pilih status kerja Anda" },
-  { value: "belum_bekerja", label: "Belum Bekerja" },
-  { value: "bekerja", label: "Bekerja" },
-  { value: "wirausaha", label: "Wirausaha" },
-  { value: "studi_lanjut", label: "Studi Lanjut" },
-];
+import { questionnaireService } from "@/services/questionnaire_service";
+import { QuestionnaireEngine } from "@/lib/QuestionnaireEngine";
+import { Loader2 } from "lucide-react";
 
 const locationOptions = [
   { value: "jawa_timur_nganjuk", label: "Jawa Timur / Nganjuk" },
@@ -39,33 +34,43 @@ const programOptions = [
 
 // Progress Indicator Component
 function ProgressIndicator({ currentStep }) {
-  const steps = ["Identitas", "Status Kerja", "Kompetensi & Proses"];
-  
+  const steps = ["Status & Detail", "Penilaian Kompetensi"];
+
   return (
     <div className="mb-10 flex items-center justify-between">
       {steps.map((step, idx) => (
         <div key={idx} className="flex flex-1 items-center">
           {/* Circle */}
-          <div className={`flex h-12 w-12 items-center justify-center rounded-full font-semibold text-white transition-all ${
-            idx < currentStep ? "bg-green-500" : idx === currentStep ? "bg-green-400" : "bg-slate-300"
-          }`}>
+          <div
+            className={`flex h-12 w-12 items-center justify-center rounded-full font-semibold text-white transition-all ${
+              idx < currentStep
+                ? "bg-green-500"
+                : idx === currentStep
+                  ? "bg-green-400"
+                  : "bg-slate-300"
+            }`}
+          >
             {idx < currentStep ? "✓" : idx + 1}
           </div>
-          
+
           {/* Label */}
           <div className="ml-3">
-            <p className={`text-xs font-medium transition-all ${
-              idx <= currentStep ? "text-slate-900" : "text-slate-500"
-            }`}>
+            <p
+              className={`text-xs font-medium transition-all ${
+                idx <= currentStep ? "text-slate-900" : "text-slate-500"
+              }`}
+            >
               {step}
             </p>
           </div>
 
           {/* Line */}
           {idx < steps.length - 1 && (
-            <div className={`ml-4 h-1 flex-1 rounded-full transition-all ${
-              idx < currentStep ? "bg-green-500" : "bg-slate-200"
-            }`} />
+            <div
+              className={`ml-4 h-1 flex-1 rounded-full transition-all ${
+                idx < currentStep ? "bg-green-500" : "bg-slate-200"
+              }`}
+            />
           )}
         </div>
       ))}
@@ -73,10 +78,19 @@ function ProgressIndicator({ currentStep }) {
   );
 }
 
-function InputField({ label, value, onChange, placeholder, name, type = "text" }) {
+function InputField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  name,
+  type = "text",
+}) {
   return (
     <label className="block">
-      <span className="mb-2 block text-sm font-medium text-slate-700">{label}</span>
+      <span className="mb-2 block text-sm font-medium text-slate-700">
+        {label}
+      </span>
       <input
         className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
         type={type}
@@ -92,7 +106,9 @@ function InputField({ label, value, onChange, placeholder, name, type = "text" }
 function SelectField({ label, value, onChange, name, options }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-sm font-medium text-slate-700">{label}</span>
+      <span className="mb-2 block text-sm font-medium text-slate-700">
+        {label}
+      </span>
       <select
         className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
         name={name}
@@ -100,7 +116,11 @@ function SelectField({ label, value, onChange, name, options }) {
         onChange={onChange}
       >
         {options.map((option) => (
-          <option key={option.value} value={option.value} disabled={option.value === ""}>
+          <option
+            key={option.value}
+            value={option.value}
+            disabled={option.value === ""}
+          >
             {option.label}
           </option>
         ))}
@@ -114,7 +134,9 @@ function RatingField({ label, value, onChange, name, description }) {
     <div className="space-y-3">
       <div>
         <p className="text-sm font-medium text-slate-900">{label}</p>
-        {description && <p className="text-xs text-slate-500 mt-1">{description}</p>}
+        {description && (
+          <p className="text-xs text-slate-500 mt-1">{description}</p>
+        )}
       </div>
       <div className="flex gap-3">
         {[1, 2, 3, 4, 5].map((num) => (
@@ -136,296 +158,226 @@ function RatingField({ label, value, onChange, name, description }) {
 }
 
 export function KuesionerCard() {
+  // State Management
+  const [engine, setEngine] = useState(null);
+  const [answers, setAnswers] = useState([]); // [{ question_id, value, key }]
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [status, setStatus] = useState("");
-  const [form, setForm] = useState({
-    durasiBekerja: "",
-    pendapatanBekerja: "",
-    lokasiBekerja: "",
-    jenisPerusahaanBekerja: "",
-    namaPerusahaanBekerja: "",
-    posisiBekerja: "",
-    durasiWirausaha: "",
-    pendapatanWirausaha: "",
-    lokasiWirausaha: "",
-    jenisUsaha: "",
-    namaUsaha: "",
-    posisiWirausaha: "",
-    sumberBiaya: "",
-    perguruanTinggi: "",
-    tanggalMasuk: "",
-    programStudi: "",
-    etika: "",
-    bahasaInggris: "",
-    komunikasi: "",
-    pengorganisasian: "",
-    keanlihanBisnis: "",
-    penguasaanTeknologi: "",
-    kerjasamaTim: "",
-    keputusan: "",
+  const [popup, setPopup] = useState({
+    open: false,
+    variant: "success",
+    message: "",
   });
-  const [popup, setPopup] = useState({ open: false, variant: "success", message: "" });
 
-  const handleSectionChange = (field, value) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
+  // Load Questionnaire Structure from API
+  useEffect(() => {
+    const initQuestionnaire = async () => {
+      try {
+        const response = await questionnaireService.getActiveQuestionnaire();
+        // Inisialisasi Engine OOP dengan data dari API
+        if (response.data) {
+          setEngine(new QuestionnaireEngine(response.data));
+        }
+      } catch (error) {
+        console.error("Failed to load questionnaire:", error);
+        setPopup({
+          open: true,
+          variant: "error",
+          message: "Gagal memuat kuesioner aktif.",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    initQuestionnaire();
+  }, []);
 
-  const handleStatusChange = (event) => {
-    setStatus(event.target.value);
-  };
+  // Filter pertanyaan yang aktif berdasarkan jawaban saat ini
+  const visibleQuestions = useMemo(() => {
+    if (!engine) return [];
+    return engine.getVisibleQuestions(answers);
+  }, [engine, answers]);
 
-  const validateCurrentStep = () => {
-    if (currentStep === 1 && !status) {
-      return { valid: false, message: "Pilih status kerja Anda terlebih dahulu." };
-    }
-    return { valid: true, message: "" };
+  // Pengelompokan pertanyaan berdasarkan step (Identitas, Status, Detail)
+  const stepQuestions = useMemo(() => {
+    // Karena category tidak ada di JSON, kita gunakan pembagian berdasarkan 'order'
+    if (currentStep === 0) return visibleQuestions.filter((q) => q.order <= 8);
+    return visibleQuestions.filter((q) => q.order > 8);
+  }, [visibleQuestions, currentStep]);
+
+  const handleInputChange = (questionId, value, kode = null) => {
+    setAnswers((prev) => {
+      // Hapus jawaban lama untuk ID yang sama
+      const filtered = prev.filter((a) => a.question_id !== questionId);
+      // Tambahkan jawaban baru, tandai 'status' jika itu adalah pertanyaan penentu flow
+      return [
+        ...filtered,
+        {
+          question_id: questionId,
+          value,
+          key: kode === "f8" ? "status" : null, // f8 adalah penentu flow di JSON baru
+        },
+      ];
+    });
   };
 
   const handleNext = () => {
-    const validation = validateCurrentStep();
-    if (!validation.valid) {
-      setPopup({ open: true, variant: "error", message: validation.message });
-      return;
-    }
-    if (currentStep < 2) {
-      setCurrentStep(currentStep + 1);
-    }
+    if (currentStep < 1) setCurrentStep(currentStep + 1);
   };
 
   const handlePrevious = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
+    if (currentStep > 0) setCurrentStep(currentStep - 1);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    setPopup({ open: true, variant: "success", message: "Kuesioner berhasil disimpan." });
+
+    if (!engine.validate(answers)) {
+      setPopup({
+        open: true,
+        variant: "error",
+        message: "Mohon lengkapi semua pertanyaan wajib.",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const payload = engine.preparePayload(answers);
+      await questionnaireService.submitAnswers(payload);
+      setPopup({
+        open: true,
+        variant: "success",
+        message: "Kuesioner berhasil dikirim!",
+      });
+      setTimeout(() => window.location.reload(), 2000);
+    } catch (error) {
+      setPopup({
+        open: true,
+        variant: "error",
+        message: "Gagal mengirim jawaban. Coba lagi nanti.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const closePopup = () => setPopup((prev) => ({ ...prev, open: false }));
 
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center p-20 space-y-4">
+        <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
+        <p className="text-slate-500 animate-pulse">
+          Memuat struktur kuesioner...
+        </p>
+      </div>
+    );
+  }
+
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Progress Indicator */}
         <ProgressIndicator currentStep={currentStep} />
 
-        {/* Warning Banner */}
         <div className="rounded-lg border border-rose-200 bg-rose-50 p-4">
           <p className="text-sm font-semibold text-rose-800">Catatan:</p>
           <p className="mt-2 text-sm leading-6 text-rose-700">
-            Pilih status kerja anda untuk melanjutkan pengisian informasi pekerjaan/studi lanjut atau boleh diisi belum bekerja. Jika anda memilih belum bekerja, pertanyaan di bawah status anda tidak wajib diisi.
+            Pilih status kerja anda untuk melanjutkan pengisian informasi
+            pekerjaan/studi lanjut atau boleh diisi belum bekerja. Jika anda
+            memilih belum bekerja, pertanyaan di bawah status anda tidak wajib
+            diisi.
           </p>
         </div>
 
-        {/* Step 1: Identitas */}
-        {currentStep === 0 && (
-          <div className="space-y-6 rounded-lg bg-white p-6 border border-slate-200">
-            <div>
-              <p className="text-lg font-semibold text-slate-900 mb-4">Data Identitas</p>
-              <div className="space-y-4">
-                <InputField
-                  label="Nama Lengkap"
-                  name="namaLengkap"
-                  placeholder="Masukkan nama lengkap"
-                />
-                <InputField
-                  label="Email"
-                  name="email"
-                  type="email"
-                  placeholder="Masukkan email"
-                />
-                <InputField
-                  label="Nomor Telepon"
-                  name="telepon"
-                  placeholder="Masukkan nomor telepon"
-                />
-              </div>
-            </div>
-          </div>
-        )}
+        <div className="space-y-6 rounded-lg bg-white p-6 border border-slate-200">
+          <p className="text-lg font-semibold text-slate-900 mb-4">
+            {currentStep === 0
+              ? "Status & Detail"
+              : "Penilaian Kompetensi"}
+          </p>
 
-        {/* Step 2: Status Kerja */}
-        {currentStep === 1 && (
-          <div className="space-y-6 rounded-lg bg-white p-6 border border-slate-200">
-            <div>
-              <p className="text-lg font-semibold text-slate-900 mb-4">Status Kerja/Studi</p>
-              <SelectField
-                label="Status anda saat ini? *"
-                name="status"
-                value={status}
-                onChange={handleStatusChange}
-                options={statusOptions}
-              />
-            </div>
-
-            {status === "bekerja" && (
-              <div className="space-y-4 mt-6 pt-6 border-t border-slate-200">
-                <p className="font-medium text-slate-900">Informasi Pekerjaan</p>
-                <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-6">
+            {stepQuestions.map((q) => (
+              <div key={q.id}>
+                {q.type === "text" && (
                   <InputField
-                    label="Dalam berapa bulan mendapat pekerjaan pertama?"
-                    name="durasiBekerja"
-                    placeholder="misal: 3"
+                    label={q.text}
+                    placeholder="Jawaban Anda..."
+                    value={
+                      answers.find((a) => a.question_id === q.id)?.value || ""
+                    }
+                    onChange={(e) => handleInputChange(q.id, e.target.value)}
+                  />
+                )}
+
+                {q.type === "number" && (
+                  <InputField
                     type="number"
+                    label={q.text}
+                    placeholder="0"
+                    value={
+                      answers.find((a) => a.question_id === q.id)?.value || ""
+                    }
+                    onChange={(e) => handleInputChange(q.id, e.target.value)}
                   />
-                  <InputField
-                    label="Rata-rata pendapatan per bulan"
-                    name="pendapatanBekerja"
-                    placeholder="satuan rupiah"
-                  />
-                  <SelectField
-                    label="Dimana anda bekerja?"
-                    name="lokasiBekerja"
-                    options={[{ value: "", label: "Pilih lokasi" }, ...locationOptions]}
-                  />
-                  <InputField
-                    label="Jenis perusahaan/instansi"
-                    name="jenisPerusahaanBekerja"
-                    placeholder="misal: teknologi"
-                  />
-                  <InputField
-                    label="Posisi di perusahaan"
-                    name="posisiBekerja"
-                    placeholder="misal: Software Developer"
-                  />
-                  <InputField
-                    label="Nama perusahaan/instansi"
-                    name="namaPerusahaanBekerja"
-                    placeholder="misal: PT ABC"
-                  />
-                </div>
-              </div>
-            )}
+                )}
 
-            {status === "wirausaha" && (
-              <div className="space-y-4 mt-6 pt-6 border-t border-slate-200">
-                <p className="font-medium text-slate-900">Informasi Wirausaha</p>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <InputField
-                    label="Berapa bulan setelah lulus mulai wirausaha?"
-                    name="durasiWirausaha"
-                    placeholder="misal: 3"
-                    type="number"
-                  />
-                  <InputField
-                    label="Rata-rata pendapatan bulanan"
-                    name="pendapatanWirausaha"
-                    placeholder="satuan rupiah"
-                  />
+                {(q.type === "radio" || q.type === "select" || q.type === "dropdown") && (
                   <SelectField
-                    label="Dimana lokasi usaha?"
-                    name="lokasiWirausaha"
-                    options={[{ value: "", label: "Pilih lokasi" }, ...locationOptions]}
+                    label={q.text}
+                    options={[
+                      { value: "", label: "Pilih jawaban" },
+                      ...(q.options?.length > 0
+                        ? q.options.map((opt) => ({
+                            value: opt.value,
+                            label: opt.label,
+                          }))
+                        : q.kode === "f8"
+                          ? [
+                              { value: "Bekerja", label: "Bekerja (full time / part time)" },
+                              { value: "Wiraswasta", label: "Wiraswasta" },
+                              { value: "Studi Lanjut", label: "Melanjutkan Pendidikan" },
+                              { value: "Mencari Kerja", label: "Tidak bekerja tetapi sedang mencari pekerjaan" },
+                              { value: "Belum Bekerja", label: "Belum Bekerja" },
+                            ]
+                          : []),
+                    ]}
+                    value={
+                      answers.find((a) => a.question_id === q.id)?.value || ""
+                    }
+                    onChange={(e) =>
+                      handleInputChange(q.id, e.target.value, q.kode)
+                    }
                   />
-                  <InputField
-                    label="Jenis usaha"
-                    name="jenisUsaha"
-                    placeholder="misal: e-commerce"
-                  />
-                  <InputField
-                    label="Posisi/jabatan anda"
-                    name="posisiWirausaha"
-                    placeholder="misal: Founder"
-                  />
-                  <InputField
-                    label="Nama usaha/bisnis"
-                    name="namaUsaha"
-                    placeholder="misal: Toko Online ABC"
-                  />
-                </div>
-              </div>
-            )}
+                )}
 
-            {status === "studi_lanjut" && (
-              <div className="space-y-4 mt-6 pt-6 border-t border-slate-200">
-                <p className="font-medium text-slate-900">Informasi Studi Lanjut</p>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <SelectField
-                    label="Sumber biaya studi lanjut?"
-                    name="sumberBiaya"
-                    options={[{ value: "", label: "Pilih sumber biaya" }, ...studySources]}
-                  />
-                  <SelectField
-                    label="Perguruan tinggi tujuan"
-                    name="perguruanTinggi"
-                    options={[{ value: "", label: "Pilih perguruan tinggi" }, ...campusOptions]}
-                  />
+                {q.type === "date" && (
                   <InputField
-                    label="Tanggal masuk"
-                    name="tanggalMasuk"
                     type="date"
+                    label={q.text}
+                    value={
+                      answers.find((a) => a.question_id === q.id)?.value || ""
+                    }
+                    onChange={(e) => handleInputChange(q.id, e.target.value)}
                   />
-                  <SelectField
-                    label="Program studi"
-                    name="programStudi"
-                    options={[{ value: "", label: "Pilih program studi" }, ...programOptions]}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+                )}
 
-        {/* Step 3: Kompetensi & Proses */}
-        {currentStep === 2 && (
-          <div className="space-y-6 rounded-lg bg-white p-6 border border-slate-200">
-            <div>
-              <p className="text-lg font-semibold text-slate-900 mb-6">Penilaian Kompetensi</p>
-              <div className="grid gap-8 sm:grid-cols-2">
-                <RatingField
-                  label="Etika"
-                  value={form.etika}
-                  onChange={handleSectionChange}
-                  name="etika"
-                />
-                <RatingField
-                  label="Bahasa Inggris"
-                  value={form.bahasaInggris}
-                  onChange={handleSectionChange}
-                  name="bahasaInggris"
-                />
-                <RatingField
-                  label="Komunikasi"
-                  value={form.komunikasi}
-                  onChange={handleSectionChange}
-                  name="komunikasi"
-                />
-                <RatingField
-                  label="Pengorganisasian"
-                  value={form.pengorganisasian}
-                  onChange={handleSectionChange}
-                  name="pengorganisasian"
-                />
-                <RatingField
-                  label="Keanekaragaman Bisnis"
-                  value={form.keanlihanBisnis}
-                  onChange={handleSectionChange}
-                  name="keanlihanBisnis"
-                />
-                <RatingField
-                  label="Penguasaan Teknologi Informasi"
-                  value={form.penguasaanTeknologi}
-                  onChange={handleSectionChange}
-                  name="penguasaanTeknologi"
-                />
-                <RatingField
-                  label="Kerjasama Tim"
-                  value={form.kerjasamaTim}
-                  onChange={handleSectionChange}
-                  name="kerjasamaTim"
-                />
-                <RatingField
-                  label="Pengambilan Keputusan"
-                  value={form.keputusan}
-                  onChange={handleSectionChange}
-                  name="keputusan"
-                />
+                {q.type === "rating" && (
+                  <RatingField
+                    label={q.text}
+                    value={
+                      answers.find((a) => a.question_id === q.id)?.value || ""
+                    }
+                    onChange={(name, val) => handleInputChange(q.id, val)}
+                    name={`q-${q.id}`}
+                  />
+                )}
               </div>
-            </div>
+            ))}
           </div>
-        )}
+        </div>
 
         {/* Navigation Buttons */}
         <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
@@ -439,15 +391,22 @@ export function KuesionerCard() {
           >
             ← Sebelumnya
           </Button>
-          
-          {currentStep === 2 ? (
+
+          {currentStep === 1 ? (
             <Button
               type="submit"
+              disabled={isSubmitting}
               variant="primary"
               size="md"
-              className="rounded-lg px-6 py-2.5 bg-blue-900 text-white hover:bg-blue-800"
+              className="rounded-lg px-6 py-2.5 bg-blue-900 text-white hover:bg-blue-800 flex items-center gap-2"
             >
-              Simpan Kuesioner
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Mengirim...
+                </>
+              ) : (
+                "Simpan Kuesioner"
+              )}
             </Button>
           ) : (
             <Button
@@ -463,7 +422,12 @@ export function KuesionerCard() {
         </div>
       </form>
 
-      <KuesionerPopup open={popup.open} variant={popup.variant} message={popup.message} onClose={closePopup} />
+      <KuesionerPopup
+        open={popup.open}
+        variant={popup.variant}
+        message={popup.message}
+        onClose={closePopup}
+      />
     </>
   );
 }

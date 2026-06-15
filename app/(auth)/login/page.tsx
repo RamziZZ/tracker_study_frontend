@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { login } from "@/services/auth_service.js";
+import Link from 'next/link';
+
+// cookie
 import Cookies from "js-cookie"; 
-import { auth, db, googleProvider } from "@/lib/firebase";
-import { signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
 
 // icon
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -24,7 +24,7 @@ import {
   FieldGroup,
   FieldLabel,
   FieldLegend,
-  FieldSeparator,
+  // FieldSeparator,
   FieldSet,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
@@ -87,44 +87,35 @@ export default function LoginPage() {
     
     setIsLoading(true);
     try {
-      // Login menggunakan Firebase Email & Password
-      const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password);
-      const firebaseUser = userCredential.user;
-      const token = await firebaseUser.getIdToken();
+      // Login menggunakan Laravel Sanctum melalui auth_service
+      const response = await login(email.trim(), password);
 
-      // Ambil Role dari Firestore
-      const role = await getUserRole(firebaseUser.email);
+      console.log("=== FULL RESPONSE ===", JSON.stringify(response))
+      
+      // Asumsi response dari Laravel: { token: "...", user: { email: "...", role: "..." } }
+      const { access_token, user } = response;
 
-      const userData = { email: firebaseUser.email, role: role };
       // Simpan ke Storage & Cookies untuk Middleware
-      saveAuthSession(token, userData);
+      saveAuthSession(access_token, user);
 
       // Set status sukses 
       setStatus({
         type: 'success',
-        message: `Login Berhasil, selamat datang kembali ${firebaseUser.email}!`
+        message: `Login Berhasil, selamat datang kembali ${user.username}!`
       });
       
-      // Memberikan jeda 2.2 detik (2200ms) agar user sempat membaca Alert sukses sebelum pindah halaman
       await new Promise((resolve) => setTimeout(resolve, 2200));
-
-      redirectUser(role);
-    } catch (err) {
-      console.error(err);
-      // Error handling 
+      redirectUser(user.role);
+    } catch (err: any) {
       let message = "Terjadi kesalahan saat login";
       
-      const errorCode = (err as any).code;
-      //daftar error dan convertnya ke bahasa pengguna
-      switch (errorCode) {
-        case 'auth/invalid-email':
-          message = "Format email tidak valid. Contoh format email yang benar adalah example@gmail.com";
-          break;
-        case 'auth/user-not-found':
-        case 'auth/wrong-password':
-        case 'auth/invalid-credential':
-          message = "Email atau Password salah. Silahkan periksa kembali akun anda.";
-          break;
+      // Error handling berdasarkan status code dari Laravel
+      if (err.response?.status === 404) {
+        message = "Email belum terdaftar. Silakan hubungi admin atau daftar terlebih dahulu.";
+      } else if (err.response?.status === 401) {
+        message = "Email atau Password salah. Silahkan periksa kembali akun anda.";
+      } else if (err.response?.data?.message) {
+        message = err.response.data.message;
       }
       
       // set status error
@@ -132,6 +123,7 @@ export default function LoginPage() {
         type: 'error',
         message: "Login gagal: " + message
       });
+      console.log(message);
     } finally {
       setIsLoading(false);
     }
@@ -141,53 +133,9 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     try {
       // Reset status/alert sebelumnya
-      setStatus(null);
-      setIsVisible(false);
-      
-      const result = await signInWithPopup(auth, googleProvider);
-      const firebaseUser = result.user;
-      const token = await firebaseUser.getIdToken();
-
-      // Ambil Role dari Firestore
-      const role = await getUserRole(firebaseUser.email);
-
-      const userData = { email: firebaseUser.email, role: role };
-      saveAuthSession(token, userData);
-      
-      // set status succes
-      setStatus({
-        type: 'success',
-        message: `Google Login Berhasil, selamat datang kembali ${firebaseUser.email}!`
-      });
-
-      // Memberikan jeda 2.2 detik (2200ms) agar user sempat membaca Alert sukses sebelum pindah halaman
-      await new Promise((resolve) => setTimeout(resolve, 2200));
-
-      redirectUser(role);
+      setStatus({ type: 'error', message: "Fitur Google Login sedang dalam pengembangan untuk sistem native." });
     } catch (err) {
-      // jika error set status error
-      setStatus({
-        type: 'error',
-        message: "Google Login Gagal: " + (err as any).message
-      });
-    }
-  };
-
-  // Fungsi pembantu untuk mengambil role dari Firestore
-  const getUserRole = async (email) => {
-    try {
-      const docRef = doc(db, "users", email);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        return docSnap.data().role;
-      } else {
-        // Default role jika email tidak terdaftar di Firestore
-        return "none";
-      }
-    } catch (error) {
-      console.error("Error fetching role:", error);
-      return "none";
+      console.error(err);
     }
   };
 
@@ -195,11 +143,9 @@ export default function LoginPage() {
   const saveAuthSession = (token, user) => {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(user));
-    
-    // Menambahkan atribut keamanan: 
-    // secure: true (hanya lewat HTTPS), sameSite: 'strict' (mencegah CSRF)
+
     const cookieOptions = { 
-      expires: 2 / 24, // Session akan kedaluwarsa dalam 2 jam
+      expires: 7, // ← ubah dari 2/24 (2 jam) ke 7 hari, samakan dengan token BE
       secure: process.env.NODE_ENV === "production", 
       sameSite: "lax" as const 
     };
@@ -316,18 +262,26 @@ export default function LoginPage() {
                 >
                   {isLoading ? "Memproses..." : "Masuk"}
                 </Button>
-                <div className="relative flex items-center py-2 w-full">
+                {/* <div className="relative flex items-center py-2 w-full">
                   <div className="grow border-t border-gray-200"></div>
                   <span className="shrink mx-4 text-gray-400 text-xs font-normal">Atau</span>
                   <div className="grow border-t border-gray-200"></div>
                 </div>
-                <div onClick={handleGoogleLogin}>
-                  <Button variant="outline" type="button" className={'w-full h-fit py-2.5 rounded-full hover:bg-gray-900 hover:text-white hover:shadow-lg shadow-blue-100 active:bg-gray-500 duration-300 cursor-pointer'}>
-                    {/* <HugeiconsIcon icon={GoogleFreeIcons}  size={24} color="black" strokeWidth={1.5} className="w-6! h-6!"/> */}
+                <div>
+                  <Button onClick={handleGoogleLogin} variant="outline" type="button" className={'w-full h-fit py-2.5 rounded-full hover:bg-gray-900 hover:text-white hover:shadow-lg shadow-blue-100 active:bg-gray-500 duration-300 cursor-pointer'}>
+                    
                     <Image alt="" src={'/Google__G__logo.svg.webp'} width={24} height={24}/>
                     Masuk dengan Google
                   </Button>  
-                </div>
+                </div> */}
+                {/* <div> 
+                  <p className="text-center text-sm font-normal text-gray-500">
+                    Belum punya akun?{" "}
+                    <Link href="/register" className="text-blue-500 font-semibold hover:underline">
+                      Registrasi Sekarang
+                    </Link>
+                  </p>
+                </div> */}
               </Field>
             </FieldGroup>
           </form>

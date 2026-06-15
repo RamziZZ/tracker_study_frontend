@@ -74,7 +74,7 @@ const navItems = [
   { label: "Dashboard", href: "/admin", icon: HomeIcon },
   { label: "Kuesioner", href: "/admin/kuesioner", icon: BookIcon },
   { label: "Data Alumni", href: "/admin/alumni", icon: AlumniIcon },
-  { label: "Pengajuan Akun", href: "/admin/pengajuan-akun", icon: AccountRequestIcon },
+  // { label: "Pengajuan Akun", href: "/admin/pengajuan-akun", icon: AccountRequestIcon },
   { label: "Loker", href: "/admin/loker", icon: WorkIcon },
   { label: "Event", href: "/admin/event", icon: EventIcon },
 ];

@@ -1,4 +1,4 @@
-import { LokerAdminCard } from "@/components/forms/form_loker_admin";
+import { LokerAdminCard } from "@/components/admin/loker/form_loker_admin";
 
 export default function LokerPage() {
   return (

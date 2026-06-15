@@ -2,12 +2,12 @@ import Image from "next/image";
 import { HugeiconsIcon } from '@hugeicons/react'
 import { PinLocation01FreeIcons, Money03FreeIcons, Chair02FreeIcons, Calendar03FreeIcons, ArrowRight02FreeIcons } from '@hugeicons/core-free-icons'
 
-const EventCard = ({label, comp_image, location, type, calender, cost, quota}) => {
+const EventCard = ({label, thumbnail, location, type, calender, cost, quota}) => {
     return (
         <div
             className="bg-white w-full flex flex-col gap-5 p-4 rounded-[25px]"
         >
-            <Image alt="" src={comp_image} width={72} height={72} className="w-full aspect-video rounded-xl"/>
+            <Image alt="" src={thumbnail} width={72} height={72} className="w-full aspect-video rounded-xl"/>
 
             <div className="w-full flex flex-col gap-5">
                 <div className="w-full flex flex-col gap-5">

@@ -1,19 +1,169 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
-import { ChevronDown } from "lucide-react";
-import Link from "next/link";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+import { userService } from "@/services/user_service";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  AlertCircleFreeIcons,
+  CheckmarkCircle03FreeIcons,
+  ViewFreeIcons,
+  ViewOffSlashFreeIcons,
+} from "@hugeicons/core-free-icons";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export default function AkunmuPage() {
-  
-  const [email, setEmail] = useState("admin@gmail.com"); // Dummy data 
+  const router = useRouter();
+  const [userData, setUserData] = useState(null);
+  const [status, setStatus] = useState(null); // { type: 'error' | 'success', message: string }
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editForm, setEditForm] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchCurrentUserData = async () => {
+      const storedUser = localStorage.getItem("user");
+      if (!storedUser) return;
+
+      const parsedUser = JSON.parse(storedUser);
+
+      try {
+        // Ambil data terbaru dari server untuk mendapatkan Email dll
+        const response = await userService.getAllUsers();
+        const allUsers = response.data || [];
+        const me = allUsers.find((u) => u.id === parsedUser.id);
+
+        if (me) {
+          setUserData(me);
+        } else {
+          setUserData(parsedUser); // Fallback ke localstorage jika tidak ketemu
+        }
+      } catch (error) {
+        console.error("Gagal mengambil data profil terbaru:", error);
+        setUserData(parsedUser);
+      }
+    };
+
+    fetchCurrentUserData();
+  }, []);
+
+  const showStatus = (type, message) => {
+    setStatus({ type, message });
+    setTimeout(() => setStatus(null), 3000);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    Cookies.remove("token");
+    Cookies.remove("role");
+    router.push("/login");
+  };
+
+  const handleOpenModal = () => {
+    setEditForm({
+      username: userData?.username || "",
+      email: userData?.email || "",
+      password: "",
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleUpdateData = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const payload = {
+        username: editForm.username,
+        email: editForm.email,
+        name: editForm.username, // Trick name fallback agar lolos validator BE
+      };
+
+      // Hanya kirim password jika diisi
+      if (editForm.password) {
+        if (editForm.password.length < 6) {
+          showStatus("error", "Password minimal 6 karakter.");
+          setIsLoading(false);
+          return;
+        }
+        payload.password = editForm.password;
+      }
+
+      await userService.updateUser(userData.id, payload);
+
+      // Perbarui state lokal
+      const updatedUser = {
+        ...userData,
+        username: editForm.username,
+        email: editForm.email,
+      };
+      setUserData(updatedUser);
+
+      // Perbarui localStorage agar Navbar/Sidebar ikut berubah
+      const localUser = JSON.parse(localStorage.getItem("user") || "{}");
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ ...localUser, username: editForm.username }),
+      );
+
+      showStatus("success", "Data akun berhasil diperbarui!");
+      setIsModalOpen(false);
+    } catch (error) {
+      showStatus(
+        "error",
+        error.response?.data?.message || "Gagal memperbarui data akun.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="flex-1 bg-transparent flex">
-      
+    <div className="flex-1 bg-transparent flex relative">
+      {/* Status Alert di Tengah Atas */}
+      {status && (
+        <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[200] w-full max-w-md px-4 pointer-events-none">
+          <Alert
+            className={`shadow-2xl border-2 pointer-events-auto animate-in fade-in slide-in-from-top-4 duration-500 ${
+              status.type === "error"
+                ? "border-red-200 bg-white text-red-800 shadow-red-200/50"
+                : "border-green-200 bg-white text-green-800 shadow-green-200/50"
+            }`}
+          >
+            <HugeiconsIcon
+              icon={
+                status.type === "error"
+                  ? AlertCircleFreeIcons
+                  : CheckmarkCircle03FreeIcons
+              }
+              className="w-5 h-5"
+            />
+            <AlertTitle className="font-bold">
+              {status.type === "error" ? "Gagal" : "Berhasil"}
+            </AlertTitle>
+            <AlertDescription>{status.message}</AlertDescription>
+          </Alert>
+        </div>
+      )}
+
       {/* Main Content */}
       <main className="flex-1 px-8 py-6">
-        
         {/* Informasi Akunmu */}
         <section className="flex flex-col items-center mb-10">
           <h2 className="text-lg font-medium text-black mb-6">
@@ -22,146 +172,161 @@ export default function AkunmuPage() {
 
           <div className="flex flex-col items-center">
             {/* Placeholder Foto Profil */}
-            <div className="w-32 h-32 rounded-full bg-gray-300 shadow-md mb-3 flex items-center justify-center">
-              <span className="text-gray-500 text-sm">Foto Profil</span>
+            <div className="w-32 h-32 relative overflow-hidden rounded-full bg-gray-300 shadow-md mb-3 flex items-center justify-center">
+              {/* <span className="text-gray-500 text-sm">Foto Profil</span> */}
+              <Image
+                src={"/avatar_default.png"}
+                alt="Profile"
+                fill
+                className="object-cover"
+              />
             </div>
-
-            <button className="text-sm text-blue-700 hover:underline">
-              Ubah Foto Profil
-            </button>
           </div>
         </section>
 
-        {/* Email & Password */}
+        {/* Email & Username */}
         <section className="bg-white/70 rounded-2xl p-6 shadow-sm mb-8 max-w-4xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* ===== USERNAME ===== */}
+            <div>
+              <Label className="text-sm font-medium text-gray-700 block mb-2">
+                Username (NIP/NIDN)
+              </Label>
+              <Input
+                value={userData?.username || ""}
+                readOnly
+                className="rounded-xl border border-gray-200 bg-slate-50 px-4 py-6 text-sm text-slate-900 outline-none"
+              />
+            </div>
 
             {/* ===== EMAIL ===== */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Email
-                </label>
-
-                <div className="flex items-center gap-1">
-                  <span className="text-red-500 text-sm">*</span>
-                  <svg viewBox="0 0 14 14" className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer" fill="currentColor">
-                    <path fillRule="evenodd"clipRule="evenodd"d="M6.99935 2.33366C4.42202 2.33366 2.33268 4.423 2.33268 7.00033C2.33268 9.57765 4.42202 11.667 6.99935 11.667C9.57668 11.667 11.666 9.57765 11.666 7.00033C11.666 4.423 9.57668 2.33366 6.99935 2.33366ZM1.16602 7.00033C1.16602 3.77866 3.77769 1.16699 6.99935 1.16699C10.221 1.16699 12.8327 3.77866 12.8327 7.00033C12.8327 10.222 10.221 12.8337 6.99935 12.8337C3.77769 12.8337 1.16602 10.222 1.16602 7.00033ZM7.04971 5.00694C6.81753 4.99807 6.59134 5.0818 6.42089 5.2397C6.25045 5.3976 6.14971 5.61675 6.14084 5.84893C6.12854 6.17086 5.8576 6.42187 5.53567 6.40957C5.21373 6.39727 4.96273 6.12632 4.97502 5.80439C4.9957 5.26302 5.2306 4.75204 5.62803 4.38385C6.02546 4.01567 6.55287 3.82045 7.09424 3.84113C7.63561 3.86181 8.1466 4.0967 8.51478 4.49413C8.88138 4.88985 9.0765 5.41443 9.05776 5.95334C9.0531 6.21822 8.99602 6.47957 8.8898 6.72231C8.78263 6.9672 8.6276 7.1882 8.43382 7.37233C8.24003 7.55646 8.0114 7.70001 7.76135 7.79453C7.70263 7.81673 7.64301 7.83612 7.58268 7.85267V8.16699C7.58268 8.48916 7.32152 8.75033 6.99935 8.75033C6.67718 8.75033 6.41602 8.48916 6.41602 8.16699V7.33983C6.41602 7.18137 6.48048 7.02974 6.59457 6.91979C6.70867 6.80983 6.86259 6.75103 7.02093 6.75689C7.13271 6.76103 7.24419 6.74279 7.34881 6.70324C7.45344 6.66368 7.54911 6.60362 7.6302 6.52657C7.71128 6.44953 7.77615 6.35705 7.82099 6.25458C7.86584 6.15211 7.88975 6.04171 7.89132 5.92987L7.89169 5.91581C7.90056 5.68363 7.81683 5.45744 7.65893 5.28699C7.50103 5.11655 7.28188 5.01581 7.04971 5.00694ZM6.41018 9.92155C6.41018 9.59938 6.67134 9.33822 6.99351 9.33822H6.99934C7.32151 9.33822 7.58268 9.59938 7.58268 9.92155C7.58268 10.2437 7.32151 10.5049 6.99934 10.5049H6.99351C6.67134 10.5049 6.41018 10.2437 6.41018 9.92155Z"/>
-                  </svg>
-                </div>
-              </div>
-
-              <input
-                type="email"
-                value={email} //ini nyoba manggil email dummy. dari line 10
+              <Label className="text-sm font-medium text-gray-700 block mb-2">
+                Email Address
+              </Label>
+              <Input
+                value={userData?.email || ""}
                 readOnly
-                className="w-full rounded-xl border border-gray-200 bg-gray-100 px-4 py-3 text-sm text-blue-900 outline-none"
+                className="rounded-xl border border-gray-200 bg-slate-50 px-4 py-6 text-sm text-slate-900 outline-none"
               />
             </div>
-
-            {/* ===== PASSWORD ===== */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Password
-                </label>
-
-                <div className="flex items-center gap-1">
-                  <span className="text-red-500 text-sm">*</span>
-                  <svg viewBox="0 0 14 14" className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer" fill="currentColor">
-                    <path fillRule="evenodd"clipRule="evenodd"d="M6.99935 2.33366C4.42202 2.33366 2.33268 4.423 2.33268 7.00033C2.33268 9.57765 4.42202 11.667 6.99935 11.667C9.57668 11.667 11.666 9.57765 11.666 7.00033C11.666 4.423 9.57668 2.33366 6.99935 2.33366ZM1.16602 7.00033C1.16602 3.77866 3.77769 1.16699 6.99935 1.16699C10.221 1.16699 12.8327 3.77866 12.8327 7.00033C12.8327 10.222 10.221 12.8337 6.99935 12.8337C3.77769 12.8337 1.16602 10.222 1.16602 7.00033ZM7.04971 5.00694C6.81753 4.99807 6.59134 5.0818 6.42089 5.2397C6.25045 5.3976 6.14971 5.61675 6.14084 5.84893C6.12854 6.17086 5.8576 6.42187 5.53567 6.40957C5.21373 6.39727 4.96273 6.12632 4.97502 5.80439C4.9957 5.26302 5.2306 4.75204 5.62803 4.38385C6.02546 4.01567 6.55287 3.82045 7.09424 3.84113C7.63561 3.86181 8.1466 4.0967 8.51478 4.49413C8.88138 4.88985 9.0765 5.41443 9.05776 5.95334C9.0531 6.21822 8.99602 6.47957 8.8898 6.72231C8.78263 6.9672 8.6276 7.1882 8.43382 7.37233C8.24003 7.55646 8.0114 7.70001 7.76135 7.79453C7.70263 7.81673 7.64301 7.83612 7.58268 7.85267V8.16699C7.58268 8.48916 7.32152 8.75033 6.99935 8.75033C6.67718 8.75033 6.41602 8.48916 6.41602 8.16699V7.33983C6.41602 7.18137 6.48048 7.02974 6.59457 6.91979C6.70867 6.80983 6.86259 6.75103 7.02093 6.75689C7.13271 6.76103 7.24419 6.74279 7.34881 6.70324C7.45344 6.66368 7.54911 6.60362 7.6302 6.52657C7.71128 6.44953 7.77615 6.35705 7.82099 6.25458C7.86584 6.15211 7.88975 6.04171 7.89132 5.92987L7.89169 5.91581C7.90056 5.68363 7.81683 5.45744 7.65893 5.28699C7.50103 5.11655 7.28188 5.01581 7.04971 5.00694ZM6.41018 9.92155C6.41018 9.59938 6.67134 9.33822 6.99351 9.33822H6.99934C7.32151 9.33822 7.58268 9.59938 7.58268 9.92155C7.58268 10.2437 7.32151 10.5049 6.99934 10.5049H6.99351C6.67134 10.5049 6.41018 10.2437 6.41018 9.92155Z"/>
-                  </svg>
-                </div>
-              </div>
-
-              <input
-                type="email"
-                value={email} //ini nyoba manggil email dummy. di line 9
-                readOnly
-                className="w-full rounded-xl border border-gray-200 bg-gray-100 px-4 py-3 text-sm text-blue-900 outline-none"
-              />
-            </div>
-
           </div>
 
           {/* BUTTON */}
           <div className="flex justify-end gap-4 mt-6">
-            <button className="bg-[#214c93] text-white px-6 py-2 rounded-full text-sm hover:opacity-90">
-              Ubah Password
+            <button
+              onClick={handleOpenModal}
+              className="bg-blue-600 text-white px-8 py-2.5 rounded-full text-sm hover:bg-blue-700 cursor-pointer transition-colors shadow-lg shadow-blue-100 font-medium"
+            >
+              Ubah Data Akun
             </button>
 
-            <button className="bg-[#214c93] text-white px-6 py-2 rounded-full text-sm hover:opacity-90">
+            <button
+              onClick={handleLogout}
+              className="bg-rose-100 text-rose-700 px-8 py-2.5 rounded-full text-sm hover:bg-rose-200 cursor-pointer transition-colors font-semibold"
+            >
               Logout
             </button>
           </div>
         </section>
-
-        {/* Informasi Data Diri */}
-        <section className="max-w-4xl mx-auto">
-          <h2 className="text-lg font-medium text-black mb-4">
-            Informasi Data Diri
-          </h2>
-
-          <div className="bg-white/70 rounded-2xl p-6 shadow-sm">
-            <div className="space-y-5">
-
-              {/* ===== NAMA ===== */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm font-medium text-gray-700">
-                    Nama
-                  </label>
-
-                  <div className="flex items-center gap-1">
-                    <span className="text-red-500 text-sm">*</span>
-                    <svg viewBox="0 0 14 14" className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer" fill="currentColor">
-                      <path fillRule="evenodd"clipRule="evenodd"d="M6.99935 2.33366C4.42202 2.33366 2.33268 4.423 2.33268 7.00033C2.33268 9.57765 4.42202 11.667 6.99935 11.667C9.57668 11.667 11.666 9.57765 11.666 7.00033C11.666 4.423 9.57668 2.33366 6.99935 2.33366ZM1.16602 7.00033C1.16602 3.77866 3.77769 1.16699 6.99935 1.16699C10.221 1.16699 12.8327 3.77866 12.8327 7.00033C12.8327 10.222 10.221 12.8337 6.99935 12.8337C3.77769 12.8337 1.16602 10.222 1.16602 7.00033ZM7.04971 5.00694C6.81753 4.99807 6.59134 5.0818 6.42089 5.2397C6.25045 5.3976 6.14971 5.61675 6.14084 5.84893C6.12854 6.17086 5.8576 6.42187 5.53567 6.40957C5.21373 6.39727 4.96273 6.12632 4.97502 5.80439C4.9957 5.26302 5.2306 4.75204 5.62803 4.38385C6.02546 4.01567 6.55287 3.82045 7.09424 3.84113C7.63561 3.86181 8.1466 4.0967 8.51478 4.49413C8.88138 4.88985 9.0765 5.41443 9.05776 5.95334C9.0531 6.21822 8.99602 6.47957 8.8898 6.72231C8.78263 6.9672 8.6276 7.1882 8.43382 7.37233C8.24003 7.55646 8.0114 7.70001 7.76135 7.79453C7.70263 7.81673 7.64301 7.83612 7.58268 7.85267V8.16699C7.58268 8.48916 7.32152 8.75033 6.99935 8.75033C6.67718 8.75033 6.41602 8.48916 6.41602 8.16699V7.33983C6.41602 7.18137 6.48048 7.02974 6.59457 6.91979C6.70867 6.80983 6.86259 6.75103 7.02093 6.75689C7.13271 6.76103 7.24419 6.74279 7.34881 6.70324C7.45344 6.66368 7.54911 6.60362 7.6302 6.52657C7.71128 6.44953 7.77615 6.35705 7.82099 6.25458C7.86584 6.15211 7.88975 6.04171 7.89132 5.92987L7.89169 5.91581C7.90056 5.68363 7.81683 5.45744 7.65893 5.28699C7.50103 5.11655 7.28188 5.01581 7.04971 5.00694ZM6.41018 9.92155C6.41018 9.59938 6.67134 9.33822 6.99351 9.33822H6.99934C7.32151 9.33822 7.58268 9.59938 7.58268 9.92155C7.58268 10.2437 7.32151 10.5049 6.99934 10.5049H6.99351C6.67134 10.5049 6.41018 10.2437 6.41018 9.92155Z"/>
-                    </svg>
-                  </div>
-                </div>
-
-                <input
-                type="email"
-                value={email} //ini nyoba manggil email dummy. di line 9
-                readOnly
-                className="w-full rounded-xl border border-gray-200 bg-gray-100 px-4 py-3 text-sm text-blue-900 outline-none"
-                />
-              </div>
-
-              {/* ===== NIDN ===== */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm font-medium text-gray-700">
-                    NIDN
-                  </label>
-
-                  <div className="flex items-center gap-1">
-                    <span className="text-red-500 text-sm">*</span>
-                    <svg viewBox="0 0 14 14" className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer" fill="currentColor">
-                      <path fillRule="evenodd"clipRule="evenodd"d="M6.99935 2.33366C4.42202 2.33366 2.33268 4.423 2.33268 7.00033C2.33268 9.57765 4.42202 11.667 6.99935 11.667C9.57668 11.667 11.666 9.57765 11.666 7.00033C11.666 4.423 9.57668 2.33366 6.99935 2.33366ZM1.16602 7.00033C1.16602 3.77866 3.77769 1.16699 6.99935 1.16699C10.221 1.16699 12.8327 3.77866 12.8327 7.00033C12.8327 10.222 10.221 12.8337 6.99935 12.8337C3.77769 12.8337 1.16602 10.222 1.16602 7.00033ZM7.04971 5.00694C6.81753 4.99807 6.59134 5.0818 6.42089 5.2397C6.25045 5.3976 6.14971 5.61675 6.14084 5.84893C6.12854 6.17086 5.8576 6.42187 5.53567 6.40957C5.21373 6.39727 4.96273 6.12632 4.97502 5.80439C4.9957 5.26302 5.2306 4.75204 5.62803 4.38385C6.02546 4.01567 6.55287 3.82045 7.09424 3.84113C7.63561 3.86181 8.1466 4.0967 8.51478 4.49413C8.88138 4.88985 9.0765 5.41443 9.05776 5.95334C9.0531 6.21822 8.99602 6.47957 8.8898 6.72231C8.78263 6.9672 8.6276 7.1882 8.43382 7.37233C8.24003 7.55646 8.0114 7.70001 7.76135 7.79453C7.70263 7.81673 7.64301 7.83612 7.58268 7.85267V8.16699C7.58268 8.48916 7.32152 8.75033 6.99935 8.75033C6.67718 8.75033 6.41602 8.48916 6.41602 8.16699V7.33983C6.41602 7.18137 6.48048 7.02974 6.59457 6.91979C6.70867 6.80983 6.86259 6.75103 7.02093 6.75689C7.13271 6.76103 7.24419 6.74279 7.34881 6.70324C7.45344 6.66368 7.54911 6.60362 7.6302 6.52657C7.71128 6.44953 7.77615 6.35705 7.82099 6.25458C7.86584 6.15211 7.88975 6.04171 7.89132 5.92987L7.89169 5.91581C7.90056 5.68363 7.81683 5.45744 7.65893 5.28699C7.50103 5.11655 7.28188 5.01581 7.04971 5.00694ZM6.41018 9.92155C6.41018 9.59938 6.67134 9.33822 6.99351 9.33822H6.99934C7.32151 9.33822 7.58268 9.59938 7.58268 9.92155C7.58268 10.2437 7.32151 10.5049 6.99934 10.5049H6.99351C6.67134 10.5049 6.41018 10.2437 6.41018 9.92155Z"/>
-                    </svg>
-                  </div>
-                </div>
-
-                <input
-                type="email"
-                value={email} //ini nyoba manggil email dummy. di line 9
-                readOnly
-                className="w-full rounded-xl border border-gray-200 bg-gray-100 px-4 py-3 text-sm text-blue-900 outline-none"
-                />
-              </div>
-
-            </div>
-
-            {/* BUTTON */}
-            <div className="flex justify-end mt-6">
-              <button className="bg-[#214c93] text-white px-8 py-2 rounded-full text-sm hover:opacity-90">
-                Ubah Data Diri
-              </button>
-            </div>
-          </div>
-        </section>
       </main>
+
+      {/* Modal Ubah Data */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <Card className="w-full max-w-lg rounded-[40px] p-10 shadow-2xl animate-in zoom-in-95 duration-200">
+            <CardHeader className="px-0 pt-0 text-center">
+              <CardTitle className="text-2xl font-bold text-slate-900">
+                Ubah Data Profil
+              </CardTitle>
+              <CardDescription className="text-base mt-2">
+                Perbarui informasi kredensial login Anda di bawah ini.
+              </CardDescription>
+            </CardHeader>
+            <form onSubmit={handleUpdateData}>
+              <CardContent className="px-0 space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="username">Username (NIP/NIDN)</Label>
+                  <Input
+                    id="username"
+                    required
+                    value={editForm.username}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, username: e.target.value })
+                    }
+                    placeholder="Masukkan username baru"
+                    className="px-5 py-6 rounded-2xl"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    required
+                    value={editForm.email}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, email: e.target.value })
+                    }
+                    placeholder="admin@example.com"
+                    className="px-5 py-6 rounded-2xl"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="new-password">
+                    Password Baru (Kosongkan jika tidak diubah)
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="new-password"
+                      type={showPassword ? "text" : "password"}
+                      value={editForm.password}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, password: e.target.value })
+                      }
+                      placeholder="••••••••"
+                      className="px-5 py-6 rounded-2xl pr-14"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-500 transition-colors"
+                    >
+                      <HugeiconsIcon
+                        icon={
+                          showPassword ? ViewOffSlashFreeIcons : ViewFreeIcons
+                        }
+                        size={20}
+                      />
+                    </button>
+                  </div>
+                </div>
+              </CardContent>
+              <div className="flex flex-col gap-3 pt-8 px-0">
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-full py-6 px-8 cursor-pointer shadow-lg shadow-blue-200 font-bold"
+                >
+                  {isLoading ? "Memproses..." : "Simpan Perubahan"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setIsModalOpen(false);
+                  }}
+                  className="rounded-full py-6 px-8 cursor-pointer text-slate-500"
+                >
+                  Batalkan
+                </Button>
+              </div>
+            </form>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

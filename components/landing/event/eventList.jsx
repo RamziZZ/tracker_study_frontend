@@ -1,11 +1,81 @@
-import EventCard from '@/components/shared/eventCard'
+"use client";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import EventCard from "@/components/shared/eventCard";
+import EventCardSkeleton from "@/components/shared/EventCardSkeleton";
+import { newsService } from "../../../services/news_service";
 
-export default function EventList() {
+export default function EventList({ activeCategory }) {
+  const [news, setNews] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const result = await newsService.getAllNews();
+        if (result.success) {
+          setNews(result.data);
+        }
+      } catch (error) {
+        console.error("Error fetching news:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchNews();
+  }, []);
+
+  // Logika Filter: Jika "Semua", tampilkan semua. Jika tidak, filter berdasarkan kategori.
+  const filteredNews =
+    activeCategory === "Semua"
+      ? news
+      : news.filter((item) => item.category === activeCategory);
+
   return (
-    <section className="px-10 w-full flex flex-col items-center">     
+    <section className="px-10 w-full h-full flex flex-col items-center">
+      <div className="w-full max-w-7xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
+        {loading ? (
+          Array.from({ length: 8 }).map((_, index) => (
+            <EventCardSkeleton key={index} />
+          ))
+        ) : filteredNews.length > 0 ? (
+          filteredNews.map((item, index) => (
+            <EventCard
+              key={item.id || index}
+              label={item.title}
+              location={"-"}
+              calender={"-"}
+              thumbnail={item.thumbnail}
+              cost={"-"}
+              quota={"-"}
+              type={item.category}
+            />
+          ))
+        ) : (
+          /* Bagian Kondisi Data Kosong */
+          <div className="col-span-full flex flex-col items-center justify-center py-20 text-center animate-in fade-in duration-500">
+            <div className="w-full max-w-sm aspect-video mb-8 flex items-center justify-center">
+              <Image
+                src="/ilustration/undraw_void_wez2.svg"
+                alt="Event tidak ditemukan"
+                width={300}
+                height={200}
+                className="w-auto h-full opacity-75 grayscale"
+              />
+            </div>
 
-      <div className="max-w-7xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
-        {[1,2,3,4,5,6].map((item) => (
+            <div className="max-w-md">
+              <h3 className="text-2xl font-semibold text-gray-500 mb-3">
+                Event Tidak Ditemukan
+              </h3>
+              <p className="text-gray-500 leading-relaxed">
+                Maaf, saat ini belum ada event yang tersedia untuk ditampilkan.
+                Silakan coba cari kategori lain atau kembali lagi nanti.
+              </p>
+            </div>
+          </div>
+        )}
+        {/* {[1,2,3,4,5,6].map((item) => (
           <EventCard
             key={item}
             label={'Intensive Fullstack Web Bootcamp'}
@@ -16,8 +86,23 @@ export default function EventList() {
             quota={'120'}
             type={'Job Fair'}
           />
-        ))}
+        ))} */}
       </div>
     </section>
   );
+}
+
+{
+  /* {news.map((news) => (
+          <EventCard
+            key={news}
+            label={'Intensive Fullstack Web Bootcamp'}
+            location={'Aula SMA Negeri 2 Nganjuk, Nganjuk Kota, Kabupaten Nganjuk'}
+            calender={'Jan 20, 2020'}
+            thumbnail={'/photo-1561489396-888724a1543d.avif'}
+            cost={'120.000'}
+            quota={'120'}
+            type={'Job Fair'}
+          />
+        ))} */
 }

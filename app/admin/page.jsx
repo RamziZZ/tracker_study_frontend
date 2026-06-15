@@ -38,7 +38,7 @@ export default function AdminPage() {
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        {/* <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
           <div className="flex justify-between items-center mb-5">
             <h2 className="text-gray-900 font-medium">Total Alumni Bekerja</h2>
             <Image
@@ -91,14 +91,14 @@ export default function AdminPage() {
           <p className="text-sm text-gray-500 mt-5">
             Jumlah alumni yang telah mengisi kuesioner tracer study
           </p>
-        </div>
+        </div> */}
       </div>
 
       {/* ===== MIDDLE ===== */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-4">
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        {/* <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-gray-900 font-medium">Sebaran Alumni</h2>
+            <h2 className="text-gray-900 font-medium">Sebaran Alumni</h2> */}
 
             {/* DROPDOWN */}
             {/* <div className="relative">
@@ -121,24 +121,24 @@ export default function AdminPage() {
                 </div>
               )}
             </div> */}
-          </div>
+          {/* </div>
 
           <div className="h-56 rounded-xl flex items-center justify-center">
             <GraduateStatusChart />
           </div>
-        </div>
+        </div> */}
 
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        {/* <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
           <h2 className="text-gray-900 font-medium">Kesesuaian Kerja Alumni</h2>
           <div className="h-56 rounded-xl flex items-center justify-center">
             <JobRelevanceChart />
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* ===== LOWER ===== */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-10">
-        {/* CARD 1 */}
+      {/* <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-10">
+        
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-gray-900 font-medium">Lokasi Kerja Alumni</h2>
@@ -159,7 +159,7 @@ export default function AdminPage() {
 
               {openDropdown1 && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 z-10">
-                  {/* Nanti isi dropdown di sini */}
+                  
                 </div>
               )}
             </div>
@@ -170,7 +170,7 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* CARD 2 */}
+        
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-gray-900 font-medium">Total Kuisioner</h2>
@@ -191,7 +191,7 @@ export default function AdminPage() {
 
               {openDropdown2 && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 z-10">
-                  {/* Nanti isi dropdown di sini */}
+                  
                 </div>
               )}
             </div>
@@ -201,7 +201,7 @@ export default function AdminPage() {
             <QuestionnaireBarChart />
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* /* ===== HEADER ===== */}
       <div className="flex justify-between items-center mb-5">

@@ -59,9 +59,7 @@
 
 "use client";
 
-import { useState } from "react";
-
-export default function HeroEvent() {
+export default function HeroEvent({ activeCategory, setActiveCategory }) {
     // 1. Definisikan kategori dalam array
     const categories = [
         "Semua", 
@@ -71,9 +69,6 @@ export default function HeroEvent() {
         "Seminar", 
         "Program Beasiswa"
     ];
-
-    // 2. State untuk melacak kategori yang aktif
-    const [activeCategory, setActiveCategory] = useState("Semua");
 
     return (
         <section className="w-full h-fit px-6 md:px-10 flex flex-col items-center gap-10">
