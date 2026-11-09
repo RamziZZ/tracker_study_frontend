@@ -45,10 +45,65 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* ===== Design tokens Figma: Tracker Study (node 1162:26387) ===== */
+  --color-figma-blue-50: #EFF6FF;
+  --color-figma-blue-100: #DBEAFE;
+  --color-figma-blue-200: #BFDBFE;
+  --color-figma-blue-300: #93C5FD;
+  --color-figma-blue-400: #60A5FA;
+  --color-figma-blue-500: #3B82F6;
+  --color-figma-blue-700: #2363CC;
+  --color-figma-blue-800: #1E437E;
+
+  --color-figma-green-50: #ECFDF5;
+  --color-figma-green-100: #D1FAE5;
+  --color-figma-green-300: #6EE7B7;
+  --color-figma-green-500: #10B981;
+
+  --color-figma-red-100: #FEE2E2;
+  --color-figma-red-300: #FCA5A5;
+  --color-figma-red-500: #EF4444;
+
+  --color-figma-gray-50: #F9FAFB;
+  --color-figma-gray-100: #F3F4F6;
+  --color-figma-gray-200: #E5E7EB;
+  --color-figma-gray-300: #D1D5DB;
+  --color-figma-gray-400: #9CA3AF;
+  --color-figma-gray-500: #6B7280;
+  --color-figma-gray-900: #111827;
+
+  --color-figma-white: #FFFFFF;
+
+
+  /* Shadow */
+  --shadow-tk-label: 0px 3px 2.5px #DBEAFE;
 }
+
 
 body {
   @apply bg-blue-50 text-gray-800;
+}
+
+/* Semua elemen interaktif memakai kursor tangan */
+button,
+[role="button"],
+a,
+select,
+summary,
+label:has(> select) {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+input[type="text"],
+input[type="search"],
+textarea {
+  cursor: text;
 }
 
 :root {

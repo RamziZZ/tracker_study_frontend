@@ -139,7 +139,7 @@ function RatingField({ label, value, onChange, name, description }) {
         )}
       </div>
       <div className="flex gap-3">
-        {[1, 2, 3, 4, 5].map((num) => (
+        {[1, 2, 3, 4, 5].map((num) => ( 
           <button
             key={num}
             onClick={() => onChange(name, num.toString())}

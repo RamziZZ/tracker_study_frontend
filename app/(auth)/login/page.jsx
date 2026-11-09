@@ -45,7 +45,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   // state untuk mengelola status autentikasi (error atau success)
-  const [status, setStatus] = useState<{ type: 'error' | 'success', message: string } | null>(null);
+  const [status, setStatus] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
   const router = useRouter();
 
@@ -106,7 +106,7 @@ export default function LoginPage() {
       
       await new Promise((resolve) => setTimeout(resolve, 2200));
       redirectUser(user.role);
-    } catch (err: any) {
+    } catch (err) {
       let message = "Terjadi kesalahan saat login";
       
       // Error handling berdasarkan status code dari Laravel
@@ -147,7 +147,7 @@ export default function LoginPage() {
     const cookieOptions = { 
       expires: 7, // ← ubah dari 2/24 (2 jam) ke 7 hari, samakan dengan token BE
       secure: process.env.NODE_ENV === "production", 
-      sameSite: "lax" as const 
+      sameSite: "lax" 
     };
 
     Cookies.set("token", token, cookieOptions);

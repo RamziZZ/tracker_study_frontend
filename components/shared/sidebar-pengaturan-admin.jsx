@@ -99,15 +99,15 @@ export default function SidebarPengaturanAdmin() {
         { label: "Manajemen Akun", href: "/admin/pengaturan/manajemen-akun", icon: ManajemenAkunIcon },
       ],
     },
-    // {
-    //   title: "Konten Manajemen",
-    //   items: [
-    //     { label: "Kuesioner", href: "/admin/pengaturan/kuesioner", icon: KuesionerIcon },
-    //     { label: "Template Pengingat", href: "/admin/pengaturan/template-pengingat", icon: PengingatIcon },
-    //     { label: "Informasi Instansi", href: "/admin/pengaturan/informasi-instansi", icon: InformasiInstansiIcon },
-    //     { label: "Tentang Website", href: "/admin/pengaturan/tentang-website", icon: TentangWebsiteIcon },
-    //   ],
-    // },
+    {
+      title: "Konten Manajemen",
+      items: [
+        { label: "Kuesioner", href: "/admin/pengaturan/kuesioner", icon: KuesionerIcon },
+        { label: "Template Pengingat", href: "/admin/pengaturan/template-pengingat", icon: PengingatIcon },
+        { label: "Informasi Instansi", href: "/admin/pengaturan/informasi-instansi", icon: InformasiInstansiIcon },
+        { label: "Tentang Website", href: "/admin/pengaturan/tentang-website", icon: TentangWebsiteIcon },
+      ],
+    },
     // {
     //   title: "Keamanan & Backup Data",
     //   items: [

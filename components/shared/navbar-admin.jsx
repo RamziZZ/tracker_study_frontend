@@ -40,54 +40,47 @@ export default function NavbarAdmin() {
   const profileImage = "/avatar_default.png"; // Default image for admin
 
   return (
-    <div className="w-full h-fit pt-5">
-      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur rounded-xl border border-slate-200">
-        <div className="flex items-center justify-between pr-2 pl-4 h-fit py-2 ">
-          <div className="flex items-center gap-3">
+    <div className="w-full shrink-0">
+      <nav className="rounded-[20px] bg-figma-white border border-figma-gray-200">
+        <div className="flex items-center justify-between px-[20px] py-[12px]">
+          <div className="flex items-center gap-[12px]">
             <Image
               src="/icon-web/logo_tracer_study_1.webp"
               alt="Tracker Study Logo"
-              width={180}
-              height={72}
-              className="object-contain"
+              width={160}
+              height={20}
+              className="h-[20px] w-[160px] object-contain"
             />
           </div>
 
           {/* Profile Section */}
           <Menu as="div" className="relative flex items-center">
             <MenuButton
-              className="flex items-center gap-3 bg-transparent px-1.5 py-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+              className="flex items-center gap-[8px] rounded-[100px] px-[6px] py-[4px] transition-colors hover:bg-figma-gray-50"
               aria-label="Open profile menu"
             >
-              <div className="h-10 w-10 rounded-full overflow-hidden bg-slate-200 relative ring-2 ring-slate-100">
-                <Image
-                  src={profileImage}
-                  alt="Profile"
-                  fill
-                  className="object-cover"
-                />
+              <div className="relative size-[36px] overflow-hidden rounded-full bg-slate-200">
+                <Image src={profileImage} alt="Profile" fill className="object-cover" />
               </div>
-              <div className="text-left hidden sm:block">
-                <p className="text-sm font-semibold text-slate-900 line-clamp-1 max-w-[120px]">
+              <div className="hidden flex-col items-start justify-center text-left sm:flex">
+                <p className="text-sm leading-5 font-semibold whitespace-nowrap text-figma-blue-800">
                   {displayName}
                 </p>
-                <p className="text-xs text-slate-500 tracking-wider">
+                <p className="text-xs leading-4 font-normal whitespace-nowrap text-figma-gray-400">
                   {userData?.role || "Admin"}
                 </p>
               </div>
-              <svg
-                viewBox="0 0 20 20"
-                fill="none"
-                className="h-6 w-6 text-slate-500"
-              >
-                <path
-                  d="M6 8l4 4 4-4"
-                  stroke="currentColor"
-                  strokeWidth="1.75"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <span className="flex items-center text-figma-gray-500">
+                <svg viewBox="0 0 20 20" fill="none" className="size-[20px]">
+                  <path
+                    d="M6 8l4 4 4-4"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
             </MenuButton>
 
             <Transition
@@ -99,15 +92,15 @@ export default function NavbarAdmin() {
               leaveFrom="transform opacity-100 scale-100"
               leaveTo="transform opacity-0 scale-95"
             >
-              <MenuItems className="absolute right-0 top-full mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-blue-100 ring-opacity-5 focus:outline-none z-50">
+              <MenuItems className="absolute right-0 top-full mt-2 z-50 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-figma-blue-100 focus:outline-none">
                 <div className="py-1">
                   <MenuItem>
                     {({ active }) => (
                       <button
                         onClick={handleLogout}
                         className={`${
-                          active ? "bg-red-100 text-red-700" : "text-red-600"
-                        } w-full text-left px-4 py-4 text-sm flex flex-row gap-2 justify-center items-center`}
+                          active ? "bg-figma-red-100 text-figma-red-500" : "text-figma-red-500"
+                        } flex w-full flex-row items-center justify-center gap-2 px-4 py-4 text-left text-sm`}
                       >
                         Keluar Akun
                         <HugeiconsIcon icon={Login01FreeIcons} />

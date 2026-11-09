@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
+export function middleware(request) {
+  // --- BYPASS UNTUK DEVELOPMENT ---
+  if (process.env.NODE_ENV === "development") {
+    return NextResponse.next();
+  }
+
   // Ambil token dari cookies (Anda perlu mengubah proses login untuk set cookie)
   const token = request.cookies.get("token")?.value;
   const userRole = request.cookies.get("role")?.value;

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { alumniService } from '@/services/user_alumni_service'; // <--- Import service FE lu di sini
+// import { alumniService } from '@/services/user_alumni_service'; // <--- Import service FE lu di sini
 
 export default function AlumniPengaturanPage() {
   const [formData, setFormData] = useState({
@@ -22,27 +22,27 @@ export default function AlumniPengaturanPage() {
   // 1. Ambil data profil pakai alumniService
   useEffect(() => {
     const fetchProfileData = async () => {
-      try {
-        const alumniData = await alumniService.getProfile(); // <--- Manggil Service FE
+      // try {
+      //   const alumniData = await alumniService.getProfile(); // <--- Manggil Service FE
         
-        if (alumniData) {
-          setFormData({
-            name: alumniData.name || '',
-            email: alumniData.user?.email || '', 
-            phone_number: alumniData.phone_number || '',
-            privacy_settings: alumniData.privacy_settings ? JSON.parse(alumniData.privacy_settings) : {
-              receive_job_notifications: true,
-              receive_admin_notifications: true,
-              share_profile_to_public: false,
-            }
-          });
-        }
-      } catch (error) {
-        console.error('Gagal memuat profil:', error);
-        setMessage({ type: 'error', text: 'Gagal memuat data profil Anda.' });
-      } finally {
-        setLoading(false);
-      }
+      //   if (alumniData) {
+      //     setFormData({
+      //       name: alumniData.name || '',
+      //       email: alumniData.user?.email || '', 
+      //       phone_number: alumniData.phone_number || '',
+      //       privacy_settings: alumniData.privacy_settings ? JSON.parse(alumniData.privacy_settings) : {
+      //         receive_job_notifications: true,
+      //         receive_admin_notifications: true,
+      //         share_profile_to_public: false,
+      //       }
+      //     });
+      //   }
+      // } catch (error) {
+      //   console.error('Gagal memuat profil:', error);
+      //   setMessage({ type: 'error', text: 'Gagal memuat data profil Anda.' });
+      // } finally {
+      //   setLoading(false);
+      // }
     };
 
     fetchProfileData();

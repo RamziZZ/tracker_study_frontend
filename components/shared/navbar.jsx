@@ -14,8 +14,8 @@ export default function Navbar() {
 
   const navigation = [
     { href: "/", name: "Home", },
-    { href: "/cari-alumni", name: "Tracking Alumni", },
-    { href: "/loker", name: "Informasi Loker", },
+    // { href: "/cari-alumni", name: "Tracking Alumni", },
+    // { href: "/loker", name: "Informasi Loker", },
     { href: "/event", name: "Event", },
     { href: "/tentang", name: "Tentang", },
   ];

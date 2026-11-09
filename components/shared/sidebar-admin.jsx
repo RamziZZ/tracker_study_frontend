@@ -91,38 +91,37 @@ export default function Sidebar() {
     pathname === href || (href !== "/admin" && pathname.startsWith(href));
 
   const linkClass = (href) =>
-    `flex items-center gap-3 px-5 py-3 rounded-lg text-[15px] transition-all duration-200 ${
+    `flex items-center gap-[12px] px-[8px] py-[8px] [border-radius:10px] text-sm leading-5 transition-colors duration-200 ${
       isActive(href)
-        ? "bg-blue-200 text-blue-500"
-        : "text-gray-500 hover:bg-blue-200 hover:text-blue-500"
+        ? "bg-figma-blue-200 text-figma-blue-800"
+        : "text-figma-gray-500 hover:bg-figma-blue-200 hover:text-figma-blue-800"
     }`;
 
   const iconClass = (href) =>
-    isActive(href) ? "text-blue-500" : "text-gray-500";
+    isActive(href) ? "text-figma-blue-800" : "text-figma-gray-500";
 
   return (
-    <aside className="w-55 max-h-screen sticky top-0 bg-white rounded-lg shadow-sm flex flex-col pt-3 pb-5 px-3 overflow-y-auto">
-      
-      <nav className="flex flex-col gap-2 flex-1 mt-2">
+    <aside className="hidden max-h-full w-[232px] shrink-0 flex-col overflow-y-auto [border-radius:16px] bg-figma-white p-[16px] shadow-sm lg:flex">
+      <nav className="flex flex-1 flex-col gap-[6px]">
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
             <Link key={item.href} href={item.href} className={linkClass(item.href)}>
-              <Icon className={`w-5 h-5 ${iconClass(item.href)}`} />
+              <Icon className={`size-[24px] shrink-0 ${iconClass(item.href)}`} />
               <span>{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      <div className="border-t border-gray-100 my-4" />
+      <div className="my-[12px] border-t border-figma-gray-200" />
 
-      <nav className="flex flex-col gap-2">
+      <nav className="flex flex-col gap-[6px]">
         {bottomItems.map((item) => {
           const Icon = item.icon;
           return (
             <Link key={item.href} href={item.href} className={linkClass(item.href)}>
-              <Icon className={`w-5 h-5 ${iconClass(item.href)}`} />
+              <Icon className={`size-[24px] shrink-0 ${iconClass(item.href)}`} />
               <span>{item.label}</span>
             </Link>
           );
