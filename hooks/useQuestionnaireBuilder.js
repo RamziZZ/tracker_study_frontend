@@ -2,6 +2,12 @@
 
 import { useCallback, useMemo, useState } from "react";
 
+import { DUMMY_QUESTIONS } from "@/hooks/dummyQuestions";
+
+// Saklar dummy: true = halaman langsung terisi 4 contoh pertanyaan (1 per tipe)
+// untuk memeriksa tampilan tiap kartu. Matikan saat data asli sudah tersedia.
+const SHOW_DUMMY_QUESTIONS = true;
+
 export const QUESTION_TYPES = [
   { value: "angka", label: "Angka (bulan)" },
   { value: "paragraf", label: "Paragraf" },
@@ -15,11 +21,14 @@ const createId = () =>
     ? crypto.randomUUID()
     : `q-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
 
-// Template isi pertanyaan per tipe
-const createQuestion = (type) => {
+// Template isi pertanyaan per tipe. Nilai awal mengikuti contoh pada desain
+// Figma question_add_card (1086:22856 Input Dasar, 1086:22949 Matrix,
+// 1086:23485 Grup, 1086:23197 Pilihan Ganda).
+const createQuestion = (type, variant) => {
   const base = {
     id: createId(),
     type,
+    variant,
     text: "",
     rows: [],
     options: [],
@@ -28,35 +37,72 @@ const createQuestion = (type) => {
     minValue: "0",
     maxValue: "",
     helpText: "",
+    groupName: "",
+    groupItems: [],
   };
 
+  if (type === "angka") {
+    return { ...base, minValue: "0", maxValue: "" };
+  }
+
   if (type === "pilihan-ganda") {
-    return { ...base, options: ["Pameran kerja / job fair", ""] };
+    return {
+      ...base,
+      otherOption: true,
+      options: [
+        "Pameran kerja / job fair",
+        "Mencari di internet",
+        "Melalui relasi",
+        "Melalui penempatan magang",
+        "Diundang perusahaan",
+        "Lainnya",
+        "",
+      ],
+    };
   }
 
   if (type === "matriks") {
-    return { ...base, rows: ["Etika Profesi", ""] };
+    return { ...base, rows: ["Etika Profesi", "Keahlian Berbasis Ilmu", ""] };
   }
 
   if (type === "grup") {
-    return { ...base, rows: ["Menganalisis masalah", ""] };
+    return {
+      ...base,
+      groupName: "Kemampuan Berpikir Kritis & Pemecahan Masalah",
+      groupItems: [
+        { id: createId(), label: "Menganalisis masalah", kind: "text" },
+        { id: createId(), label: "Menentukan solusi", kind: "select" },
+        { id: createId(), label: "Mengambil keputusan", kind: "radio" },
+      ],
+    };
   }
 
   return base;
 };
 
-export function useQuestionnaireBuilder(initialQuestions = []) {
+export function useQuestionnaireBuilder(initialQuestions) {
   // Jumlah pertanyaan = turunan dari state, BUKAN field yang diketik manual
-  const [questions, setQuestions] = useState(initialQuestions);
+  const [questions, setQuestions] = useState(() => {
+    if (initialQuestions) return initialQuestions;
+    // Preview UI: setiap tipe question_add_card diwakili satu contoh
+    return SHOW_DUMMY_QUESTIONS ? DUMMY_QUESTIONS : [];
+  });
   const [questionType, setQuestionType] = useState("angka");
   const [dataType, setDataType] = useState("Ringkasan Karier Alumni");
   const [closureType, setClosureType] = useState("Buka (dapat diisi sampai batas waktu)");
 
   const questionCount = questions.length;
 
-  const handleAddQuestion = useCallback(() => {
-    setQuestions((prev) => [...prev, createQuestion(questionType)]);
-  }, [questionType]);
+  // typeOverride dipakai saat tipe dipilih dari popup Tambah Pertanyaan
+  const handleAddQuestion = useCallback(
+    (typeOverride, variantOverride) => {
+      setQuestions((prev) => [
+        ...prev,
+        createQuestion(typeOverride ?? questionType, variantOverride),
+      ]);
+    },
+    [questionType],
+  );
 
   const handleUpdateQuestion = useCallback((id, patch) => {
     setQuestions((prev) => prev.map((item) => (item.id === id ? { ...item, ...patch } : item)));

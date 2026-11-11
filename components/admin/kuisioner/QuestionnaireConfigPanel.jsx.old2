@@ -1,0 +1,80 @@
+"use client";
+
+// Panel Konfigurasi Kuisioner — dari Figma `1103:22474` (variabel konfigurasi
+// di dalam page component `kuisioner` → `add_pertanyaan` → section subheader).
+// Kartu biru: header "Konfigurasi Kuisioner" + 3 field (Target Responden,
+// Tanggal Dibuka, Tanggal Ditutup).
+
+const fieldClass =
+  "flex h-[38.75px] w-full items-center gap-[10px] justify-between rounded-[10px] border border-figma-blue-300 bg-figma-blue-50 px-[20px] py-[10px] text-xs leading-4 text-figma-blue-800";
+
+const CONFIG_FIELDS = [
+  {
+    key: "target",
+    label: "Target Responden",
+    value: "Alumni TIF Angkatan 2020–2024",
+  },
+  { key: "openedAt", label: "Tanggal Dibuka", value: "01/06/2025", icon: true },
+  { key: "closedAt", label: "Tanggal Ditutup", value: "30/06/2025", icon: true },
+];
+
+function CalendarIcon() {
+  return (
+    <svg
+      viewBox="0 0 18.75 18.75"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.4}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="size-[18.75px] shrink-0"
+    >
+      <rect x="2.6" y="3.9" width="13.55" height="12.2" rx="2.5" />
+      <path d="M2.6 7.7h13.55M6.5 2.3v3.2M12.25 2.3v3.2" />
+    </svg>
+  );
+}
+
+function ChevronDown() {
+  return (
+    <svg
+      viewBox="0 0 18.75 18.75"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="size-[18.75px] shrink-0"
+    >
+      <path d="m4.7 7 4.7 4.7L14.1 7" />
+    </svg>
+  );
+}
+
+export function QuestionnaireConfigPanel() {
+  return (
+    <aside className="flex w-full flex-col gap-[10px] overflow-clip rounded-[25px] border border-figma-blue-300 bg-figma-blue-100 p-[20px] lg:w-[402px] lg:shrink-0">
+      <p className="text-lg leading-7 font-bold text-figma-blue-800">
+        Konfigurasi Kuisioner
+      </p>
+
+      <div className="flex w-full flex-col gap-[15px]">
+        {CONFIG_FIELDS.map((field) => (
+          <div key={field.key} className="flex flex-col gap-[5px]">
+            <p className="text-sm leading-5 font-medium text-figma-blue-800">
+              {field.label}
+            </p>
+            <div className={`${fieldClass} text-figma-blue-800`}>
+              <span className="min-w-0 flex-1 truncate">{field.value}</span>
+              {field.icon ? <CalendarIcon /> : <ChevronDown />}
+            </div>
+          </div>
+        ))}
+      </div>
+    </aside>
+  );
+}
+
+export default QuestionnaireConfigPanel;

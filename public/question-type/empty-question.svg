@@ -1,0 +1,20 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="Component 1">
+<g id="Vector">
+<use xlink:href="#stroke0_0_24" stroke="#3B82F6"/>
+<use xlink:href="#stroke0_0_24" stroke="black" stroke-opacity="0.2"/>
+<use xlink:href="#stroke0_0_24" stroke="black" stroke-opacity="0.2"/>
+<use xlink:href="#stroke0_0_24" stroke="black" stroke-opacity="0.2"/>
+</g>
+<g id="Vector_2">
+<use xlink:href="#stroke1_0_24" stroke="#3B82F6"/>
+<use xlink:href="#stroke1_0_24" stroke="black" stroke-opacity="0.2"/>
+<use xlink:href="#stroke1_0_24" stroke="black" stroke-opacity="0.2"/>
+<use xlink:href="#stroke1_0_24" stroke="black" stroke-opacity="0.2"/>
+</g>
+</g>
+<defs>
+<path id="stroke0_0_24" d="M32 54.6667C51.0208 54.6667 58.6667 43.9216 58.6667 30.6667C58.6667 17.4118 53.6875 6.66667 32 6.66667C11.0208 6.66667 5.33333 17.4118 5.33333 30.6667C5.33333 36.1899 6.32091 41.2776 8.99096 45.3333C12.3542 50.6667 10.6467 55.5555 8 57.3333C12.3079 57.3333 15.2056 55.9621 17.0464 54.6043C18.3534 53.64 20.0183 53.1637 21.5957 53.5507C24.5517 54.2755 27.9976 54.6667 32 54.6667Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="stroke1_0_24" d="M26.6667 24C26.6667 21.0545 29.0544 18.6667 32 18.6667C34.9456 18.6667 37.3333 21.0545 37.3333 24C37.3333 25.5407 36.68 26.9288 35.6352 27.9024C34.0192 29.4085 32 31.1243 32 33.3333M32.3333 42H32M32.6667 42C32.6667 42.3683 32.3683 42.6667 32 42.6667C31.6317 42.6667 31.3333 42.3683 31.3333 42C31.3333 41.6317 31.6317 41.3333 32 41.3333C32.3683 41.3333 32.6667 41.6317 32.6667 42Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</defs>
+</svg>

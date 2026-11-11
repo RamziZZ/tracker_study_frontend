@@ -6,7 +6,7 @@ import { ActionButton } from "./ActionButton";
 export function QuestionnaireHeader({ onAdd, onBulkAdd }) {
   return (
     <div className="flex w-full flex-wrap items-start justify-between gap-[24px]">
-      <h1 className="text-3xl leading-9 font-semibold whitespace-nowrap text-figma-gray-900">
+      <h1 className="text-[36px] leading-[40px] font-semibold whitespace-nowrap text-figma-gray-900">
         Daftar Kuisioner
       </h1>
       <div className="flex flex-wrap items-start justify-end gap-[40px]">

@@ -34,10 +34,10 @@ export function QuestionnaireCard({ data, onDelete }) {
       aria-label={`Buka detail ${data.title}`}
       onClick={handleOpen}
       onKeyDown={handleCardKeyDown}
-      className={`flex w-full cursor-pointer flex-col items-start self-start overflow-clip [border-radius:24px] border border-solid transition-shadow hover:shadow-[0_4px_8px_rgba(30,66,126,0.15)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-figma-blue-500 ${theme.shell}`}
+      className={`flex w-full cursor-pointer flex-col items-start self-start overflow-clip rounded-[24px] border border-solid transition-shadow hover:shadow-[0_4px_8px_rgba(30,66,126,0.15)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-figma-blue-500 ${theme.shell}`}
     >
       <div
-        className={`flex w-full flex-col items-start gap-[12px] [border-radius:24px] border border-solid bg-figma-white p-[20px] ${theme.inner}`}
+        className={`flex w-full flex-col items-start gap-[14px] rounded-[24px] border border-solid bg-figma-white p-[24px] ${theme.inner}`}
       >
         <div className="flex w-full items-center gap-[10px]">
           <div className="flex shrink-0 items-center [border-radius:20px] border border-figma-blue-300 bg-figma-blue-100 p-[10px]">
@@ -96,7 +96,7 @@ export function QuestionnaireCard({ data, onDelete }) {
         </div>
       </div>
 
-      <div className="flex w-full flex-col items-start px-[20px] py-[12px]">
+      <div className="flex w-full flex-col items-start p-[20px]">
         <StatusBadge status={data.status} />
       </div>
     </article>

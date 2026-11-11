@@ -11,7 +11,7 @@ export function QuestionnairePagination({ page, pageSize, totalItems, onPageChan
   const isNextDisabled = page >= totalPages;
 
   return (
-    <div className="flex w-full items-center justify-end gap-[20px] pt-[4px] pb-[20px]">
+    <div className="flex w-full shrink-0 items-center justify-end gap-[20px] py-[20px]">
       <ActionButton
         variant={isPrevDisabled ? "muted" : "primary"}
         shape="chip"

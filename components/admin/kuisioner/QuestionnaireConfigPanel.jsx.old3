@@ -1,0 +1,68 @@
+"use client";
+
+import { CalendarDays, ChevronDown } from "lucide-react";
+
+// Panel "Konfigurasi Kuisioner".
+// Sumber desain: Figma node 1103:22474 (kolom kanan halaman add_pertanyaan).
+// Struktur: kartu bg blue-100, border blue-300, radius 25, p-20, gap-15;
+// label 14/20 medium blue-800 + gap 5 ke field;
+// field h-38.75, radius 10, border blue-300, bg blue-50, px-20 py-10, teks 12/16.
+const CONFIG_FIELDS = [
+  {
+    id: "target-responden",
+    label: "Target Responden",
+    value: "Alumni TIF Angkatan 2020–2024",
+    icon: "chevron",
+  },
+  {
+    id: "tanggal-dibuka",
+    label: "Tanggal Dibuka",
+    value: "01/06/2025",
+    icon: "calendar",
+  },
+  {
+    id: "tanggal-ditutup",
+    label: "Tanggal Ditutup",
+    value: "30/06/2025",
+    icon: "calendar",
+  },
+];
+
+const fieldClass =
+  "flex h-[38.75px] w-full items-center justify-between gap-[10px] rounded-[10px] border border-solid border-figma-blue-300 bg-figma-blue-50 px-[20px] py-[10px] text-left text-[12px] leading-[16px] font-normal text-figma-blue-800";
+
+const iconClass = "size-[18.75px] shrink-0 text-figma-blue-800";
+
+function FieldIcon({ icon }) {
+  if (icon === "calendar") {
+    return <CalendarDays className={iconClass} strokeWidth={1.5} aria-hidden="true" />;
+  }
+  return <ChevronDown className={iconClass} strokeWidth={1.5} aria-hidden="true" />;
+}
+
+export function QuestionnaireConfigPanel({ fields = CONFIG_FIELDS }) {
+  return (
+    <aside className="flex w-full flex-col gap-[15px] overflow-clip rounded-[25px] border border-solid border-figma-blue-300 bg-figma-blue-100 p-[20px] lg:w-[402px] lg:shrink-0">
+      <h2 className="text-[18px] leading-[28px] font-bold text-figma-blue-800">
+        Konfigurasi Kuisioner
+      </h2>
+
+      <div className="flex w-full flex-col gap-[15px]">
+        {fields.map((field) => (
+          <div key={field.id} className="flex flex-col gap-[5px]">
+            <label
+              htmlFor={field.id}
+              className="text-[14px] leading-[20px] font-medium text-figma-blue-800"
+            >
+              {field.label}
+            </label>
+            <button type="button" id={field.id} className={`${fieldClass} cursor-pointer`}>
+              <span className="min-w-0 flex-1 truncate">{field.value}</span>
+              <FieldIcon icon={field.icon} />
+            </button>
+          </div>
+        ))}
+      </div>
+    </aside>
+  );
+}

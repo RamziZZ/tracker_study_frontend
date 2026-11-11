@@ -1,418 +1,437 @@
 "use client";
 
-import { useState } from "react";
-import { QUESTION_TYPES } from "@/hooks/useQuestionnaireBuilder";
+// Kartu editor pertanyaan — Figma component `question_add_card`
+// (instance per tipe: 1086:22856 Input Dasar, 1086:23197 Pilihan Ganda,
+//  1086:22949 Matriks, 1086:23485 Grup).
+//
+// Struktur persis desain:
+//   kartu   : bg white, border blue-300, radius 25, overflow-clip
+//   header  : bg blue-100, border blue-300, p-15, gap-10, judul 18/28 bold blue-800 + ikon close 24
+//   body    : 2 kolom — kiri editor (p-20, gap-20, items-end), kanan pratinjau
+//             (gradient blue-100→blue-50, border-l blue-200, p-20, gap-10)
+//   label   : 14/20 medium blue-800, gap 5 ke field
+//   field   : h-38.75, radius 10, border blue-300, bg blue-50, px-20 py-10, 12/16 blue-800
+//   tombol sekunder : bg blue-100, radius 1000, px-30 py-11, 12/16 blue-800
+//   tombol simpan   : bg blue-500, h-40.545, radius 1000, px-40 py-10, 12/16 blue-50
 
-export const typeLabel = (value) =>
-  QUESTION_TYPES.find((type) => type.value === value)?.label ?? value;
+import { useCallback } from "react";
 
-// Field dasar yang dipakai semua tipe pertanyaan
+import { ChevronDown, X } from "lucide-react";
+
+const CARD_HEADER_TITLE = {
+  angka: "Input Dasar",
+  "pilihan-ganda": "Pilihan Ganda",
+  matriks: "Matriks Evaluasi",
+  grup: "Grup Pertanyaan",
+};
+
+const labelClass = "w-full text-[14px] leading-[20px] font-medium text-figma-blue-800";
 const fieldClass =
-  "h-[38.75px] w-full [border-radius:10px] border border-figma-blue-300 bg-figma-blue-50 px-[20px] text-xs leading-4 text-figma-blue-800 outline-none placeholder:text-figma-blue-400 focus:border-figma-blue-500";
-const labelClass = "text-sm leading-5 font-medium text-figma-blue-800";
-const helpClass = "text-xs leading-4 text-figma-blue-800";
-const addButtonClass =
-  "flex items-center justify-center gap-[10px] px-[30px] py-[11px] [border-radius:1000px] bg-figma-blue-100 text-xs leading-4 text-figma-blue-800  transition-opacity hover:opacity-80";
+  "flex h-[38.75px] w-full items-center justify-between gap-[10px] rounded-[10px] border border-solid border-figma-blue-300 bg-figma-blue-50 px-[20px] py-[10px] text-[12px] leading-[16px] font-normal text-figma-blue-800";
+const softButtonClass =
+  "flex cursor-pointer items-center justify-center rounded-[1000px] bg-figma-blue-100 px-[30px] py-[11px] text-[12px] leading-[16px] font-normal whitespace-nowrap text-figma-blue-800 transition-colors hover:bg-figma-blue-200";
+const primaryButtonClass =
+  "flex h-[40.545px] cursor-pointer items-center justify-center rounded-[1000px] bg-figma-blue-500 px-[40px] py-[10px] text-[12px] leading-[16px] font-normal whitespace-nowrap text-figma-blue-50 transition-opacity hover:opacity-90";
+const previewTitleClass = "w-full text-[14px] leading-[20px] font-semibold text-figma-blue-800";
+const previewSubTitleClass = "w-full text-[14px] leading-[20px] font-semibold text-figma-gray-900";
 
-function Field({ label, children }) {
+function Field({ label, value, placeholder, chevron, children }) {
   return (
-    <label className="flex w-full flex-col gap-[5px]">
-      <span className={labelClass}>{label}</span>
-      {children}
-    </label>
-  );
-}
-
-export function QuestionTypePicker({ value, onChange }) {
-  return (
-    <div className="flex flex-wrap gap-[8px]">
-      {QUESTION_TYPES.map((type) => {
-        const isActive = type.value === value;
-        return (
-          <button
-            key={type.value}
-            type="button"
-            onClick={() => onChange(type.value)}
-            className={`h-[36px] [border-radius:1000px] border px-[20px] text-xs leading-4 transition-opacity hover:opacity-80 ${
-              isActive
-                ? "border-figma-blue-400 bg-figma-blue-200 text-figma-blue-800"
-                : "border-figma-gray-300 bg-figma-white text-figma-gray-500"
-            }`}
-          >
-            {type.label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-// Panel kanan: "Tampilan Pertanyaan yang Alumni Lihat"
-export function QuestionPreview({ question, index }) {
-  const questionNumber = index + 1;
-  const questionText = question.text || "Pertanyaan belum diisi";
-
-  if (question.type === "angka") {
-    return (
-      <div className="w-full [border-radius:25px] border border-figma-blue-300 bg-figma-white p-[10px]">
-        <div className="flex flex-col gap-[15px] p-[10px]">
-          <p className="text-lg leading-7 font-bold text-figma-blue-800">
-            {questionNumber}. {questionText}
-          </p>
-          <div className="flex items-center gap-[10px] [border-radius:10px] bg-figma-blue-200 pl-[15px]">
-            <span className="text-xs leading-4 text-figma-gray-900">Bln</span>
-            <div className="flex h-[38.75px] flex-1 items-center px-[20px] [border-radius:10px] border border-figma-blue-300 bg-figma-blue-50">
-              <span className="text-xs leading-4 text-figma-blue-400">Masukkan jumlah bulan...</span>
-            </div>
-          </div>
-          <p className="text-xs leading-4 text-figma-blue-800">
-            {question.helpText || "Isi 0 jika langsung bekerja setelah lulus."}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (question.type === "matriks") {
-    return (
-      <div className="w-full [border-radius:25px] border border-figma-blue-300 bg-figma-white">
-        <div className="border-b border-figma-blue-300 bg-figma-blue-100 p-[15px]">
-          <p className="text-lg leading-7 font-bold text-figma-blue-800">
-            {questionNumber}. {questionText}
-          </p>
-        </div>
-        <div className="flex flex-col gap-[10px] p-[15px]">
-          {question.rows.length === 0 ? (
-            <p className="text-xs leading-4 text-figma-gray-500">Belum ada opsi penilaian.</p>
-          ) : (
-            question.rows.map((row, rowIndex) => (
-              <div key={`${row}-${rowIndex}`} className="flex items-center justify-between gap-[20px]">
-                <p className="min-w-0 flex-1 text-sm leading-5 text-figma-gray-900">
-                  {String.fromCharCode(97 + rowIndex)}. {row}
-                </p>
-                <div className="flex shrink-0 items-center gap-[5px]">
-                  {[1, 2, 3, 4].map((scale) => (
-                    <span
-                      key={scale}
-                      className="flex w-[24px] justify-center [border-radius:1000px] border border-figma-blue-300 bg-figma-blue-50 py-[3px] text-xs leading-4 text-figma-blue-800"
-                    >
-                      {scale}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  if (question.type === "grup") {
-    return (
-      <div className="w-full [border-radius:25px] border border-figma-blue-300 bg-figma-white">
-        <div className="border-b border-figma-blue-300 bg-figma-blue-100 p-[15px]">
-          <p className="text-lg leading-7 font-bold text-figma-blue-800">
-            {questionNumber}. {question.text || "Nama grup belum diisi"}
-          </p>
-        </div>
-        <div className="flex flex-col gap-[10px] p-[15px]">
-          {question.rows.length === 0 ? (
-            <p className="text-xs leading-4 text-figma-gray-500">Belum ada pertanyaan dalam grup.</p>
-          ) : (
-            question.rows.map((row, rowIndex) => (
-              <p key={`${row}-${rowIndex}`} className="text-sm leading-5 font-semibold text-figma-gray-900">
-                {String.fromCharCode(97 + rowIndex)}. {row}
-              </p>
-            ))
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  if (question.type === "pilihan-ganda") {
-    return (
-      <div className="w-full [border-radius:25px] border border-figma-blue-300 bg-figma-white p-[10px]">
-        <div className="flex flex-col gap-[15px] p-[10px]">
-          <p className="text-lg leading-7 font-bold text-figma-blue-800">
-            {questionNumber}. {questionText}
-          </p>
-          <p className="text-xs leading-4 text-figma-gray-500">* Pilih semua yang sesuai</p>
-          <div className="flex flex-wrap gap-[8px]">
-            {question.options.map((option, optionIndex) => (
-              <span
-                key={`${option}-${optionIndex}`}
-                className="h-[36px] items-center [border-radius:1000px] border border-figma-gray-300 bg-figma-white px-[20px] text-xs leading-4 text-figma-gray-500"
-              >
-                <span className="flex h-full items-center">{option}</span>
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="w-full [border-radius:25px] border border-figma-blue-300 bg-figma-white p-[10px]">
-      <div className="flex flex-col gap-[15px] p-[10px]">
-        <p className="text-lg leading-7 font-bold text-figma-blue-800">
-          {questionNumber}. {questionText}
-        </p>
-        <div className="h-[38.75px] w-full [border-radius:10px] border border-figma-gray-200 bg-figma-gray-50 px-[20px]">
-          <span className="flex h-full items-center text-xs leading-4 text-figma-gray-500">
-            Alumni menulis jawaban di sini...
+    <div className="flex w-full flex-col gap-[5px]">
+      <p className={labelClass}>{label}</p>
+      {children || (
+        <div className={fieldClass}>
+          <span className={`min-w-0 flex-1 truncate ${placeholder ? "text-figma-blue-400" : ""}`}>
+            {value}
           </span>
+          {chevron ? (
+            <ChevronDown className="size-[24px] shrink-0" strokeWidth={1.5} aria-hidden="true" />
+          ) : null}
         </div>
+      )}
+    </div>
+  );
+}
+
+function RemoveButton({ onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="Hapus opsi"
+      className="flex size-[24px] shrink-0 cursor-pointer items-center justify-center text-figma-blue-500 transition-opacity hover:opacity-70"
+    >
+      <X className="size-[24px]" strokeWidth={1.5} aria-hidden="true" />
+    </button>
+  );
+}
+
+// Pratinjau skala likert 1-5 (komponen likert_comp di Figma)
+function LikertScale() {
+  return (
+    <div className="w-full overflow-clip rounded-[10px] border border-solid border-figma-blue-400">
+      <div className="flex w-full items-start">
+        {[1, 2, 3, 4, 5].map((value) => {
+          const active = value === 2;
+          return (
+            <div
+              key={value}
+              className={`flex h-[36px] flex-1 items-center justify-center px-[15px] py-[10px] ${
+                value < 5 ? "border-r border-solid border-figma-blue-400" : ""
+              } ${active ? "bg-figma-blue-500" : "bg-figma-white"}`}
+            >
+              <span
+                className={`text-[12px] leading-[16px] whitespace-nowrap ${
+                  active ? "text-figma-blue-50" : "text-figma-blue-800"
+                }`}
+              >
+                {value}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-// Editor satu pertanyaan: header tipe + form + panel preview
-export function QuestionEditorCard({
-  question,
-  index,
-  total,
-  onUpdate,
-  onRemove,
-  onMoveUp,
-  onMoveDown,
-}) {
-  const [isPreviewOpen, setIsPreviewOpen] = useState(true);
+function LikertRow({ title }) {
+  return (
+    <div className="flex w-full flex-col gap-[10px] p-[15px]">
+      <p className={previewSubTitleClass}>{title}</p>
+      <div className="flex w-full items-center justify-between text-[12px] leading-[16px] text-figma-gray-900">
+        <span className="text-center whitespace-nowrap">
+          Sangat
+          <br />
+          Rendah
+        </span>
+        <span className="text-center whitespace-nowrap">
+          Sangat
+          <br />
+          Tinggi
+        </span>
+      </div>
+      <LikertScale />
+    </div>
+  );
+}
 
-  const updateField = (field, value) => onUpdate(question.id, { [field]: value });
+function PreviewCard({ title, children }) {
+  return (
+    <div className="flex w-full flex-col overflow-clip rounded-[25px] border border-solid border-figma-blue-300 bg-figma-white">
+      <div className="flex w-full items-center border border-solid border-figma-blue-300 bg-figma-blue-100 p-[15px]">
+        <p className="w-full text-[18px] leading-[28px] font-bold text-figma-blue-800">{title}</p>
+      </div>
+      {children}
+    </div>
+  );
+}
 
-  const updateRow = (rowIndex, value) => {
-    const nextRows = [...question.rows];
-    nextRows[rowIndex] = value;
-    onUpdate(question.id, { rows: nextRows });
+function RadioRow({ title, description }) {
+  return (
+    <div className="flex w-full items-center gap-[20px] rounded-[10px] border border-solid border-figma-blue-300 bg-figma-blue-50 px-[20px] py-[15px]">
+      <span className="size-[24px] shrink-0 rounded-[1000px] border-2 border-solid border-figma-blue-200" />
+      <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
+        <p className="w-full text-[14px] leading-[20px] font-semibold text-figma-blue-800">{title}</p>
+        <p className="w-full text-[12px] leading-[16px] font-normal text-figma-blue-400">
+          {description}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function QuestionEditorCard({ question, onUpdate, onRemove }) {
+  const type = question?.type || "angka";
+  const headerTitle = CARD_HEADER_TITLE[type] || "Input Dasar";
+
+  const patch = useCallback((changes) => onUpdate(question.id, changes), [onUpdate, question.id]);
+
+  const options = question?.options || [];
+  const rows = question?.rows || [];
+  const items = question?.items || [];
+
+  const updateOption = (index, value) => {
+    const next = [...options];
+    next[index] = value;
+    patch({ options: next });
   };
+  const addOption = () => patch({ options: [...options, ""] });
+  const removeOption = (index) => patch({ options: options.filter((_, i) => i !== index) });
 
-  const addRow = () => onUpdate(question.id, { rows: [...question.rows, ""] });
-
-  const removeRow = (rowIndex) =>
-    onUpdate(question.id, { rows: question.rows.filter((_, i) => i !== rowIndex) });
-
-  const updateOption = (optionIndex, value) => {
-    const nextOptions = [...question.options];
-    nextOptions[optionIndex] = value;
-    onUpdate(question.id, { options: nextOptions });
+  const updateRow = (index, value) => {
+    const next = [...rows];
+    next[index] = value;
+    patch({ rows: next });
   };
-
-  const addOption = () => onUpdate(question.id, { options: [...question.options, ""] });
-
-  const removeOption = (optionIndex) =>
-    onUpdate(question.id, {
-      options: question.options.filter((_, i) => i !== optionIndex),
-    });
-
-  const rowLabel =
-    question.type === "matriks"
-      ? "Kompetensi yang Dinilai"
-      : question.type === "grup"
-        ? "Daftar Pertanyaan"
-        : "";
+  const addRow = () => patch({ rows: [...rows, ""] });
+  const removeRow = (index) => patch({ rows: rows.filter((_, i) => i !== index) });
 
   return (
-    <div className="w-full overflow-clip [border-radius:25px] border border-figma-blue-300 bg-figma-white">
-      <div className="flex w-full items-center gap-[10px] border-b border-figma-blue-300 bg-figma-blue-100 p-[15px]">
-        <p className="min-w-0 flex-1 text-lg leading-7 font-bold text-figma-blue-800">
-          {index + 1}. {typeLabel(question.type)}
+    <article className="flex w-full flex-col overflow-clip rounded-[25px] border border-solid border-figma-blue-300 bg-figma-white">
+      {/* header kartu */}
+      <div className="flex w-full shrink-0 items-center gap-[10px] border border-solid border-figma-blue-300 bg-figma-blue-100 p-[15px]">
+        <p className="min-w-0 flex-1 text-[18px] leading-[28px] font-bold text-figma-blue-800">
+          {headerTitle}
         </p>
-        <div className="flex shrink-0 items-center gap-[6px]">
-          <button
-            type="button"
-            aria-label="Naikkan urutan pertanyaan"
-            onClick={() => onMoveUp(question.id)}
-            disabled={index === 0}
-            className="flex size-[28px] items-center justify-center [border-radius:8px] border border-figma-blue-300 bg-figma-white text-xs text-figma-blue-800 transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            ↑
-          </button>
-          <button
-            type="button"
-            aria-label="Turunkan urutan pertanyaan"
-            onClick={() => onMoveDown(question.id)}
-            disabled={index === total - 1}
-            className="flex size-[28px] items-center justify-center [border-radius:8px] border border-figma-blue-300 bg-figma-white text-xs text-figma-blue-800 transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            ↓
-          </button>
-          <button
-            type="button"
-            aria-label="Hapus pertanyaan"
-            onClick={() => onRemove(question.id)}
-            className="flex size-[28px] items-center justify-center [border-radius:8px] border border-figma-red-300 bg-figma-red-100 text-xs text-figma-red-500 transition-opacity hover:opacity-80"
-          >
-            ×
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => onRemove(question.id)}
+          aria-label="Hapus pertanyaan"
+          className="flex size-[24px] shrink-0 cursor-pointer items-center justify-center text-figma-blue-500 transition-opacity hover:opacity-70"
+        >
+          <X className="size-[24px]" strokeWidth={1.5} aria-hidden="true" />
+        </button>
       </div>
 
-      <div className="flex w-full flex-col items-start justify-end lg:flex-row">
-        <div className="flex w-full flex-1 flex-col gap-[20px] p-[20px]">
-          <div className="flex flex-col gap-[10px]">
-            <Field label={question.type === "grup" ? "Nama Grup Pertanyaan" : "Teks Pertanyaan"}>
-              <input
-                value={question.text}
-                onChange={(event) => updateField("text", event.target.value)}
-                placeholder={
-                  question.type === "grup"
-                    ? "Contoh: Kemampuan Berpikir Kritis & Pemecahan Masalah"
-                    : "Tulis pertanyaan yang akan dilihat alumni..."
-                }
-                className={fieldClass}
-              />
-            </Field>
+      <div className="flex w-full flex-col items-start xl:flex-row">
+        {/* kolom editor */}
+        <div className="flex min-w-0 flex-1 flex-col items-end gap-[20px] p-[20px]">
+          <div className="flex w-full flex-col gap-[10px]">
+            {type === "angka" ? (
+              <>
+                <Field label="Teks Pertanyaan" value={question.question || "Berapa lama masa tunggu kerja Anda?"} />
+                <Field label="Format Jawaban">
+                  <div className={fieldClass}>
+                    <span className="min-w-0 flex-1 truncate">
+                      {question.format === "paragraf" ? "Paragraf" : "Angka (bulan)"}
+                    </span>
+                    <ChevronDown className="size-[24px] shrink-0" strokeWidth={1.5} aria-hidden="true" />
+                  </div>
+                </Field>
+                <Field label="Batas Minimal">
+                  <div className={fieldClass}>
+                    <span className="min-w-0 flex-1 truncate">{question.minValue || "0"}</span>
+                  </div>
+                </Field>
+                <Field label="Batas Maksimal">
+                  <div className={fieldClass}>
+                    <span className="min-w-0 flex-1 truncate text-figma-blue-400">
+                      {question.maxValue || "Tanpa batas"}
+                    </span>
+                  </div>
+                </Field>
+              </>
+            ) : null}
 
-            {(question.type === "angka" || question.type === "paragraf") && (
-              <Field label="Format Jawaban">
-                <div className="flex h-[38.75px] w-full items-center justify-between [border-radius:10px] border border-figma-blue-300 bg-figma-blue-50 px-[20px]">
-                  <span className="text-xs leading-4 text-figma-blue-800">
-                    {question.type === "angka" ? "Angka" : "Teks paragraf"}
-                  </span>
-                  <span className="text-xs text-figma-blue-800">▾</span>
+            {type === "pilihan-ganda" ? (
+              <>
+                <Field
+                  label="Teks Pertanyaan"
+                  value={question.question || "Bagaimana Anda mendapatkan pekerjaan saat ini?"}
+                />
+                <div className="flex w-full flex-col gap-[5px]">
+                  <p className={labelClass}>Pilihan Jawaban</p>
+                  <div className="flex w-full flex-col gap-[5px]">
+                    {options.map((option, index) => (
+                      <div key={`option-${index}`} className={fieldClass}>
+                        <input
+                          value={option}
+                          onChange={(event) => updateOption(index, event.target.value)}
+                          placeholder="Tulis opsi jawaban"
+                          className="min-w-0 flex-1 bg-transparent text-[12px] leading-[16px] text-figma-blue-800 outline-none placeholder:text-figma-blue-400"
+                        />
+                        <RemoveButton onClick={() => removeOption(index)} />
+                      </div>
+                    ))}
+                  </div>
+                  <button type="button" onClick={addOption} className={softButtonClass}>
+                    Tambah Opsi
+                  </button>
                 </div>
-              </Field>
-            )}
+                <div className="flex w-full items-center gap-[20px] rounded-[10px] border border-solid border-figma-blue-300 bg-figma-blue-50 px-[20px] py-[15px]">
+                  <span className="size-[24px] shrink-0 rounded-[4px] border-2 border-solid border-figma-blue-200" />
+                  <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
+                    <p className="w-full text-[14px] leading-[20px] font-semibold text-figma-blue-800">
+                      Pilihan Lainnya
+                    </p>
+                    <p className="w-full text-[12px] leading-[16px] font-normal text-figma-blue-400">
+                      Izinkan alumni menulis jawaban sendiri
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => patch({ otherOption: !question.otherOption })}
+                    aria-pressed={Boolean(question.otherOption)}
+                    aria-label="Aktifkan pilihan lainnya"
+                    className={`flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-[1000px] px-[3px] transition-colors ${
+                      question.otherOption ? "bg-figma-blue-500" : "bg-figma-blue-200"
+                    }`}
+                  >
+                    <span
+                      className={`size-[18px] rounded-[1000px] bg-figma-white transition-transform ${
+                        question.otherOption ? "translate-x-[20px]" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                </div>
+              </>
+            ) : null}
 
-            {question.type === "angka" && (
-              <div className="flex w-full gap-[10px]">
-                <Field label="Min">
-                  <input
-                    value={question.minValue}
-                    onChange={(event) => updateField("minValue", event.target.value)}
-                    inputMode="numeric"
-                    className={fieldClass}
-                  />
-                </Field>
-                <Field label="Max">
-                  <input
-                    value={question.maxValue}
-                    onChange={(event) => updateField("maxValue", event.target.value)}
-                    inputMode="numeric"
-                    placeholder="Tidak ada batasan"
-                    className={fieldClass}
-                  />
-                </Field>
-              </div>
-            )}
+            {type === "matriks" ? (
+              <>
+                <Field
+                  label="Teks Pertanyaan"
+                  value={question.question || "Seberapa baik kompetensi berikut Anda kuasai saat lulus?"}
+                />
+                <div className="flex w-full flex-col gap-[5px]">
+                  <p className={labelClass}>Kompetensi yang Dinilai</p>
+                  <div className="flex w-full flex-col items-end gap-[5px]">
+                    {rows.map((row, index) => (
+                      <div key={`row-${index}`} className={fieldClass}>
+                        <input
+                          value={row}
+                          onChange={(event) => updateRow(index, event.target.value)}
+                          placeholder="Tulis kompetensi"
+                          className="min-w-0 flex-1 bg-transparent text-[12px] leading-[16px] text-figma-blue-800 outline-none placeholder:text-figma-blue-400"
+                        />
+                        <RemoveButton onClick={() => removeRow(index)} />
+                      </div>
+                    ))}
+                  </div>
+                  <button type="button" onClick={addRow} className={softButtonClass}>
+                    Tambah Opsi
+                  </button>
+                </div>
+              </>
+            ) : null}
 
-            {question.type === "angka" && (
-              <p className={`${helpClass} italic`}>Kosongkan untuk tanpa batas maksimum.</p>
-            )}
+            {type === "grup" ? (
+              <>
+                <Field
+                  label="Nama Grup Pertanyaan"
+                  value={question.groupName || "Kemampuan Berpikir Kritis & Pemecahan Masalah"}
+                  placeholder={!question.groupName}
+                />
+                <div className="flex w-full flex-col gap-[5px]">
+                  <p className={labelClass}>Daftar Pertanyaan</p>
+                  <div className="flex w-full flex-col items-end gap-[5px]">
+                    {items.map((item, index) => (
+                      <div key={item.id || `item-${index}`} className={fieldClass}>
+                        <span className="min-w-0 flex-1 truncate">
+                          {String.fromCharCode(97 + index)}. {item.label}
+                        </span>
+                        {item.kind === "radio" ? (
+                          <ChevronDown className="size-[24px] shrink-0" strokeWidth={1.5} aria-hidden="true" />
+                        ) : (
+                          <RemoveButton
+                            onClick={() =>
+                              patch({ items: items.filter((_, i) => i !== index) })
+                            }
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      patch({
+                        items: [
+                          ...items,
+                          { id: `item-${Date.now()}`, label: "Pertanyaan baru", kind: "text" },
+                        ],
+                      })
+                    }
+                    className={softButtonClass}
+                  >
+                    Tambah Opsi Pertanyaan
+                  </button>
+                </div>
+              </>
+            ) : null}
           </div>
 
-          {(question.type === "matriks" || question.type === "grup") && (
-            <div className="flex flex-col gap-[5px]">
-              <span className={labelClass}>{rowLabel}</span>
-              <div className="flex flex-col gap-[5px]">
-                {question.rows.map((row, rowIndex) => (
-                  <div key={`row-${rowIndex}`} className="flex items-center gap-[6px]">
-                    <input
-                      value={row}
-                      onChange={(event) => updateRow(rowIndex, event.target.value)}
-                      placeholder="Isi opsi pertanyaan..."
-                      className={fieldClass}
+          <button type="button" className={primaryButtonClass}>
+            Simpan Pertanyaan
+          </button>
+        </div>
+
+        {/* kolom pratinjau alumni */}
+        <div className="flex w-full flex-col gap-[10px] self-stretch border-t border-solid border-figma-blue-200 bg-gradient-to-t from-figma-blue-100 to-figma-blue-50 p-[20px] xl:min-w-0 xl:flex-1 xl:border-t-0 xl:border-l">
+          <p className={previewTitleClass}>Tampilan Pertanyaan yang Alumni Lihat</p>
+
+          {type === "angka" ? (
+            <PreviewCard title="1. Berapa lama masa tunggu kerja Anda?">
+              <div className="flex w-full flex-col gap-[10px] p-[15px]">
+                <div className="flex h-[38.75px] w-full items-center rounded-[10px] border border-solid border-figma-blue-300 bg-figma-blue-50 px-[20px] py-[10px]">
+                  <span className="text-[12px] leading-[16px] text-figma-blue-400">0</span>
+                </div>
+                <p className="text-[12px] leading-[16px] text-figma-gray-900">
+                  Masukkan jumlah bulan dalam angka.
+                </p>
+              </div>
+            </PreviewCard>
+          ) : null}
+
+          {type === "pilihan-ganda" ? (
+            <PreviewCard title="1. Bagaimana Anda mendapatkan pekerjaan saat ini?">
+              <div className="flex w-full flex-col gap-[10px] p-[15px]">
+                {options
+                  .filter(Boolean)
+                  .filter((option) => !(question.otherOption && option.toLowerCase() === "lainnya"))
+                  .map((option, index) => (
+                    <RadioRow
+                      key={`preview-${index}`}
+                      title={option}
+                      description="Pilih salah satu jawaban."
                     />
-                    <button
-                      type="button"
-                      aria-label={`Hapus opsi baris ${rowIndex + 1}`}
-                      onClick={() => removeRow(rowIndex)}
-                      className="flex size-[30px] shrink-0 items-center justify-center [border-radius:8px] border border-figma-red-300 bg-figma-red-100 text-xs text-figma-red-500 transition-opacity hover:opacity-80"
-                    >
-                      ×
-                    </button>
+                  ))}
+                {question.otherOption ? (
+                  <RadioRow title="Lainnya" description="Tuliskan jawaban Anda sendiri." />
+                ) : null}
+              </div>
+            </PreviewCard>
+          ) : null}
+
+          {type === "matriks" ? (
+            <PreviewCard title="1. Seberapa baik kompetensi berikut Anda kuasai saat lulus?">
+              {rows
+                .filter(Boolean)
+                .map((row, index) => (
+                  <div key={`likert-${index}`} className="w-full border-t border-solid border-figma-blue-300">
+                    <LikertRow title={`${String.fromCharCode(97 + index)}. ${row}`} />
                   </div>
                 ))}
-              </div>
-              <button type="button" onClick={addRow} className={`${addButtonClass} w-fit`}>
-                {question.type === "matriks" ? "Tambah Opsi" : "Tambah Opsi Pertanyaan"}
-              </button>
-            </div>
-          )}
+            </PreviewCard>
+          ) : null}
 
-          {question.type === "pilihan-ganda" && (
-            <div className="flex flex-col gap-[5px]">
-              <span className={labelClass}>Opsi Jawaban</span>
-              <div className="flex flex-wrap gap-[8px]">
-                {question.options.map((option, optionIndex) => (
-                  <span
-                    key={`option-${optionIndex}`}
-                    className="flex h-[36px] items-center gap-[10px] [border-radius:1000px] border border-figma-gray-300 bg-figma-white pl-[20px] pr-[10px]"
-                  >
-                    <input
-                      value={option}
-                      onChange={(event) => updateOption(optionIndex, event.target.value)}
-                      placeholder="Opsi jawaban..."
-                      className="w-[130px] bg-transparent text-xs leading-4 text-figma-gray-500 outline-none"
-                    />
-                    <button
-                      type="button"
-                      aria-label={`Hapus opsi ${optionIndex + 1}`}
-                      onClick={() => removeOption(optionIndex)}
-                      className="size-[18px] shrink-0 text-xs text-figma-gray-500"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
-              <button type="button" onClick={addOption} className={`${addButtonClass} w-fit`}>
-                Tambah Opsi
-              </button>
-
-              <label className="mt-[10px] flex cursor-pointer items-center gap-[20px] [border-radius:10px] border border-figma-blue-300 bg-figma-blue-50 px-[20px] py-[15px]">
-                <input
-                  type="checkbox"
-                  checked={question.otherOption}
-                  onChange={(event) => updateField("otherOption", event.target.checked)}
-                  className="size-[20px] accent-figma-blue-500"
-                />
-                <span className="flex flex-col gap-[2px]">
-                  <span className="text-sm leading-5 font-semibold text-figma-blue-800">
-                    Pilihan Lainnya
-                  </span>
-                  <span className="text-xs leading-4 text-figma-blue-400">
-                    Aktifkan agar alumni dapat menulis sumber lain.
-                  </span>
-                </span>
-              </label>
-
-              {question.otherOption && (
-                <Field label="Isi jawaban lainnya">
-                  <input
-                    value={question.otherPlaceholder}
-                    onChange={(event) => updateField("otherPlaceholder", event.target.value)}
-                    placeholder="Sebutkan sumber lainnya..."
-                    className="h-[38.75px] w-full [border-radius:10px] border border-figma-gray-200 bg-figma-gray-50 px-[20px] text-xs leading-4 text-figma-gray-500 outline-none"
-                  />
-                </Field>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="flex w-full flex-1 flex-col gap-[10px] border-t border-figma-blue-200 bg-gradient-to-t from-figma-blue-100 to-figma-blue-50 p-[20px] lg:border-t-0 lg:border-l">
-          <div className="flex w-full items-center justify-between gap-[10px]">
-            <p className="text-sm leading-5 font-semibold text-figma-blue-800">
-              Tampilan Pertanyaan yang Alumni Lihat
-            </p>
-            <button
-              type="button"
-              aria-label={isPreviewOpen ? "Sembunyikan pratinjau" : "Tampilkan pratinjau"}
-              aria-expanded={isPreviewOpen}
-              onClick={() => setIsPreviewOpen((prev) => !prev)}
-              className="shrink-0 cursor-pointer text-xs leading-4 text-figma-blue-800 underline-offset-2 hover:underline"
-            >
-              {isPreviewOpen ? "Sembunyikan" : "Tampilkan"}
-            </button>
-          </div>
-          {isPreviewOpen && <QuestionPreview question={question} index={index} />}
+          {type === "grup" ? (
+            <PreviewCard title="1. Kemampuan Berpikir Kritis & Pemecahan Masalah">
+              {items.map((item, index) => (
+                <div
+                  key={item.id || `group-${index}`}
+                  className="flex w-full flex-col gap-[10px] border-t border-solid border-figma-blue-300 p-[15px]"
+                >
+                  <p className={previewSubTitleClass}>
+                    {String.fromCharCode(97 + index)}. {item.label}
+                  </p>
+                  {item.kind === "radio" ? (
+                    <div className="flex w-full flex-col gap-[10px]">
+                      {[
+                        ["Perlu bimbingan", "Masih membutuhkan arahan."],
+                        ["Cukup mandiri", "Sesekali membutuhkan masukan."],
+                        ["Mandiri", "Mampu memutuskan sendiri."],
+                      ].map(([title, description]) => (
+                        <RadioRow key={title} title={title} description={description} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className={fieldClass}>
+                      <span className="text-figma-blue-400">
+                        {item.kind === "select" ? "Pilih pendekatan solusi" : "Sebutkan contoh kasusnya..."}
+                      </span>
+                      {item.kind === "select" ? (
+                        <ChevronDown className="size-[24px] shrink-0" strokeWidth={1.5} aria-hidden="true" />
+                      ) : null}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </PreviewCard>
+          ) : null}
         </div>
       </div>
-    </div>
+    </article>
   );
 }

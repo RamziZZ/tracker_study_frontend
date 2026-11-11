@@ -27,5 +27,5 @@ const fallbackTheme = statusTheme["Sedang Berjalan"];
 export function StatusBadge({ status }) {
   const theme = statusTheme[status] ?? fallbackTheme;
 
-  return <p className={`w-full text-base leading-6 font-semibold ${theme.text}`}>Status: {status}</p>;
+  return <p className={`w-full text-[18px] leading-[28px] font-semibold ${theme.text}`}>Status: {status}</p>;
 }

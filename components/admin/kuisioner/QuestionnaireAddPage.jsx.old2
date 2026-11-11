@@ -1,0 +1,227 @@
+"use client";
+
+// Halaman "Tambah Kuisioner" — Figma page component `kuisioner` →
+// variabel `add_pertanyaan` (node 1105:23051).
+//
+// Susunan sesuai desain:
+//   header halaman : tombol kembali + judul + label status + 2 tombol aksi
+//                    (TIDAK ada tombol tambah pertanyaan di sini)
+//   kolom kiri     : `daftar_layout` (1103:22459) — punya 2 varian:
+//                      - no_question : kartu kosong + tombol tambah
+//                      - default     : daftar kartu pertanyaan + tombol tambah
+//   kolom kanan    : Konfigurasi Kuisioner (1103:22474)
+
+import { useCallback, useEffect, useState } from "react";
+
+import Link from "next/link";
+
+import { AddQuestionPopup } from "@/components/admin/kuisioner/AddQuestionPopup";
+import QuestionnaireConfigPanel from "@/components/admin/kuisioner/QuestionnaireConfigPanel";
+import QuestionEditorCard from "@/components/admin/kuisioner/QuestionEditorCard";
+import { useQuestionnaireBuilder } from "@/hooks/useQuestionnaireBuilder";
+
+const STATUS_LABEL = "Draf";
+
+function ChevronLeftIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="size-[24px]"
+    >
+      <path d="m15 5-7 7 7 7" />
+    </svg>
+  );
+}
+
+function PageHeader() {
+  return (
+    <div className="flex w-full flex-col gap-[15px]">
+      <div className="flex w-full flex-wrap items-center justify-between gap-[15px]">
+        <Link
+          href="/admin/kuesioner"
+          className="flex items-center gap-[10px] text-figma-blue-800 transition-opacity hover:opacity-70"
+        >
+          <ChevronLeftIcon />
+          <span className="text-sm leading-5 font-medium">Kembali</span>
+        </Link>
+
+        <div className="flex items-center gap-[10px]">
+          <button
+            type="button"
+            className="flex h-[40.545px] cursor-pointer items-center justify-center rounded-[1000px] border border-figma-blue-400 px-[30px] text-xs leading-4 text-figma-blue-800 transition-colors hover:bg-figma-blue-100"
+          >
+            Simpan sebagai Draf
+          </button>
+          <button
+            type="button"
+            className="flex h-[40.545px] cursor-pointer items-center justify-center rounded-[1000px] bg-figma-blue-500 px-[30px] text-xs leading-4 text-figma-blue-50 transition-opacity hover:opacity-90"
+          >
+            Publikasikan
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-[15px]">
+        <h1 className="text-2xl leading-8 font-bold text-figma-blue-800">
+          Kuisioner Tracer Study Alumni
+        </h1>
+        <span className="flex items-center justify-center rounded-[1000px] bg-figma-blue-100 px-[15px] py-[5px] text-xs leading-4 text-figma-blue-800">
+          {STATUS_LABEL}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// `daftar_layout` varian no_question: ilustrasi + teks + tombol tambah
+function EmptyQuestionState({ onAdd }) {
+  return (
+    <div className="flex w-full flex-col items-center justify-center gap-[20px] overflow-clip rounded-[25px] border border-figma-blue-300 bg-figma-blue-50 p-[40px] text-center">
+      <div className="grid size-[100px] place-items-center rounded-[1000px] bg-figma-blue-100">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.4}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+          className="size-[48px] text-figma-blue-400"
+        >
+          <path d="M9 9a3 3 0 1 1 4.2 2.7c-.8.4-1.2 1-1.2 1.8v.3" />
+          <circle cx="12" cy="17.2" r="0.9" fill="currentColor" stroke="none" />
+          <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 18.5z" />
+        </svg>
+      </div>
+
+      <div className="flex flex-col gap-[5px]">
+        <p className="text-lg leading-7 font-bold text-figma-blue-800">
+          Belum ada pertanyaan
+        </p>
+        <p className="text-sm leading-5 text-figma-blue-400">
+          Tambahkan pertanyaan pertama untuk mulai menyusun kuisioner ini.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        onClick={onAdd}
+        className="flex h-[40.545px] cursor-pointer items-center justify-center rounded-[1000px] bg-figma-blue-500 px-[40px] text-xs leading-4 text-figma-blue-50 transition-opacity hover:opacity-90"
+      >
+        Tambah Pertanyaan
+      </button>
+    </div>
+  );
+}
+
+// Tombol tambah pada `daftar_layout` (dashed, di bawah kartu / tengah bila kosong)
+function AddQuestionButton({ onClick, count }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full cursor-pointer flex-col items-center justify-center gap-[10px] rounded-[25px] border border-dashed border-figma-blue-400 bg-figma-white p-[20px] transition-colors hover:bg-figma-blue-50"
+    >
+      <span className="flex items-center justify-center gap-[10px] text-figma-blue-800">
+        <span className="grid size-[24px] place-items-center rounded-[1000px] bg-figma-blue-500 text-figma-blue-50">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            aria-hidden="true"
+            className="size-[14px]"
+          >
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </span>
+        <span className="text-sm leading-5 font-semibold">Tambah Pertanyaan</span>
+      </span>
+      {count > 0 ? (
+        <span className="text-xs leading-4 text-figma-blue-400">
+          {count} pertanyaan tersusun
+        </span>
+      ) : null}
+    </button>
+  );
+}
+
+export function QuestionnaireAddPage() {
+  const { questions, handleAddQuestion, handleUpdateQuestion, handleRemoveQuestion } =
+    useQuestionnaireBuilder();
+
+  const [isAddPopupOpen, setIsAddPopupOpen] = useState(false);
+
+  const openAddPopup = useCallback(() => setIsAddPopupOpen(true), []);
+  const closeAddPopup = useCallback(() => setIsAddPopupOpen(false), []);
+
+  // Esc hanya aktif saat popup terbuka
+  useEffect(() => {
+    if (!isAddPopupOpen) return undefined;
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") setIsAddPopupOpen(false);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isAddPopupOpen]);
+
+  // Popup mengirim (value, key); `key` dipakai sebagai variant instance kartu
+  const handleSelectType = useCallback(
+    (type, variant) => {
+      handleAddQuestion(type, variant);
+      setIsAddPopupOpen(false);
+    },
+    [handleAddQuestion],
+  );
+
+  // varian daftar_layout
+  const daftarVariant = questions.length === 0 ? "no_question" : "default";
+
+  return (
+    <div className="flex w-full flex-col gap-[20px]">
+      <PageHeader />
+
+      <div className="flex w-full flex-col items-start gap-[20px] lg:flex-row">
+        <section
+          data-variant={daftarVariant}
+          className="flex min-w-0 flex-1 flex-col gap-[15px] rounded-[25px] border border-figma-blue-300 bg-figma-blue-50 p-[20px]"
+        >
+          {daftarVariant === "no_question" ? (
+            <EmptyQuestionState onAdd={openAddPopup} />
+          ) : (
+            <>
+              {questions.map((question) => (
+                <QuestionEditorCard
+                  key={question.id}
+                  question={question}
+                  onUpdate={handleUpdateQuestion}
+                  onRemove={handleRemoveQuestion}
+                />
+              ))}
+              <AddQuestionButton onClick={openAddPopup} count={questions.length} />
+            </>
+          )}
+        </section>
+
+        <QuestionnaireConfigPanel />
+      </div>
+
+      <AddQuestionPopup
+        open={isAddPopupOpen}
+        onClose={closeAddPopup}
+        onSelect={handleSelectType}
+      />
+    </div>
+  );
+}
+
+export default QuestionnaireAddPage;

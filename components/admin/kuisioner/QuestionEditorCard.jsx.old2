@@ -1,0 +1,574 @@
+"use client";
+
+// Kartu pertanyaan (Figma: question_add_card) — 4 varian instance:
+//   1086:22856 "Input Dasar"  (tipe angka)
+//   1086:22949 "Matrix Evaluasi"
+//   1086:23485 "Grup Pertanyaan"
+//   1086:23197 "Pilihan Ganda"
+// Struktur tiap kartu: header biru + 2 kolom (editor kiri, pratinjau kanan).
+
+import { QUESTION_TYPES } from "@/hooks/useQuestionnaireBuilder";
+
+const CARD_HEADER_TITLE = {
+  angka: "Input Dasar",
+  "pilihan-ganda": "Pilihan Ganda",
+  matriks: "Matrix Evaluasi",
+  grup: "Grup Pertanyaan",
+};
+
+export const typeLabel = (value) =>
+  QUESTION_TYPES.find((type) => type.value === value)?.label ?? value;
+
+// Tombol solid biru: Simpan Pertanyaan
+const primaryChipClass =
+  "flex h-[40.545px] cursor-pointer items-center justify-center rounded-[1000px] bg-figma-blue-500 px-[40px] text-xs leading-4 text-figma-blue-50 transition-opacity hover:opacity-90";
+
+// Tombol lembut biru: Tambah Opsi / Tambah Opsi Pertanyaan
+const softChipClass =
+  "flex cursor-pointer items-center justify-center rounded-[1000px] bg-figma-blue-100 px-[30px] py-[11px] text-xs leading-4 text-figma-blue-800 transition-opacity hover:opacity-80";
+
+// Field editor (kolom kiri): bg blue-50, border blue-300, radius 10, h 38.75
+const editorFieldClass =
+  "flex h-[38.75px] w-full items-center gap-[10px] rounded-[10px] border border-figma-blue-300 bg-figma-blue-50 px-[20px] py-[10px] text-xs leading-4 text-figma-blue-800 outline-none placeholder:text-figma-blue-400";
+
+// Field pratinjau alumni: bg gray-50, border gray-200
+const previewFieldClass =
+  "flex h-[38.75px] w-full items-center rounded-[10px] border border-figma-gray-200 bg-figma-gray-50 px-[20px] py-[10px] text-xs leading-4 text-figma-gray-500";
+
+function FieldLabel({ children }) {
+  return <p className="text-sm leading-5 font-medium text-figma-blue-800">{children}</p>;
+}
+
+function CloseIcon({ className = "size-[24px]" }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={className}
+    >
+      <path d="M18 6 6 18M6 6l12 12" />
+    </svg>
+  );
+}
+
+function ChevronDown({ className = "size-[18.75px]" }) {
+  return (
+    <svg
+      viewBox="0 0 18.75 18.75"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={className}
+    >
+      <path d="m4.7 7 4.7 4.7L14.1 7" />
+    </svg>
+  );
+}
+
+function RadioCircle() {
+  return (
+    <span className="size-[24px] shrink-0 rounded-[1000px] border-2 border-figma-blue-200" />
+  );
+}
+
+// Cangkang kartu: header biru + body dua kolom
+function QuestionCardShell({ title, onRemove, children, preview }) {
+  return (
+    <div className="flex w-full flex-col overflow-clip rounded-[25px] border border-figma-blue-300 bg-figma-white">
+      <div className="flex w-full items-center gap-[10px] border-b border-figma-blue-300 bg-figma-blue-100 p-[15px]">
+        <p className="min-w-0 flex-1 text-lg leading-7 font-bold text-figma-blue-800">
+          {title}
+        </p>
+        <button
+          type="button"
+          onClick={onRemove}
+          aria-label={`Hapus pertanyaan ${title}`}
+          className="shrink-0 cursor-pointer text-figma-blue-500 transition-opacity hover:opacity-70"
+        >
+          <CloseIcon />
+        </button>
+      </div>
+
+      <div className="flex w-full flex-col items-stretch lg:flex-row">
+        <div className="flex min-w-0 flex-1 flex-col items-end gap-[20px] p-[20px]">
+          <div className="flex w-full flex-col gap-[10px]">{children}</div>
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col gap-[10px] self-stretch border-figma-blue-200 bg-gradient-to-t from-figma-blue-100 to-figma-blue-50 p-[20px] lg:border-l">
+          <p className="text-sm leading-5 font-semibold text-figma-blue-800">
+            Tampilan Pertanyaan yang Alumni Lihat
+          </p>
+          {preview}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ Editor ------------------------------ */
+
+function NumberEditor({ question, onChange }) {
+  return (
+    <>
+      <div className="flex flex-col gap-[5px]">
+        <FieldLabel>Teks Pertanyaan</FieldLabel>
+        <input
+          value={question.text}
+          onChange={(event) => onChange({ text: event.target.value })}
+          placeholder="Berapa lama waktu Anda mencari pekerjaan pertama setelah lulus?"
+          className={editorFieldClass}
+        />
+      </div>
+
+      <div className="flex flex-col gap-[5px]">
+        <FieldLabel>Format Jawaban</FieldLabel>
+        <div className={`${editorFieldClass} justify-between`}>
+          <span className="min-w-0 flex-1 truncate">Angka (bulan)</span>
+          <ChevronDown />
+        </div>
+      </div>
+
+      <div className="flex w-full items-start gap-[10px]">
+        <div className="flex min-w-0 flex-1 flex-col gap-[5px]">
+          <FieldLabel>Min</FieldLabel>
+          <input
+            value={question.minValue}
+            onChange={(event) => onChange({ minValue: event.target.value })}
+            inputMode="numeric"
+            className={editorFieldClass}
+          />
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col gap-[5px]">
+          <FieldLabel>Max</FieldLabel>
+          <input
+            value={question.maxValue}
+            onChange={(event) => onChange({ maxValue: event.target.value })}
+            inputMode="numeric"
+            className={editorFieldClass}
+          />
+          <p className="text-xs leading-4 text-figma-blue-400">
+            kosongkan jika ingin tidak ada batasnya
+          </p>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function ChoiceEditor({ question, onChange }) {
+  const options = question.options ?? [];
+
+  const updateOption = (index, value) =>
+    onChange({ options: options.map((item, i) => (i === index ? value : item)) });
+
+  const removeOption = (index) =>
+    onChange({ options: options.filter((_, i) => i !== index) });
+
+  const addOption = () => onChange({ options: [...options, ""] });
+
+  return (
+    <>
+      <div className="flex flex-col gap-[5px]">
+        <FieldLabel>Teks Pertanyaan</FieldLabel>
+        <input
+          value={question.text}
+          onChange={(event) => onChange({ text: event.target.value })}
+          placeholder="Bagaimana Anda menemukan pekerjaan pertama setelah lulus?"
+          className={editorFieldClass}
+        />
+      </div>
+
+      <div className="flex flex-col gap-[5px]">
+        <FieldLabel>Opsi Jawaban</FieldLabel>
+        <div className="flex w-full flex-wrap items-center gap-[8px]">
+          {options.map((option, index) => (
+            <span
+              key={`${question.id}-option-${index}`}
+              className="flex shrink-0 items-center justify-center gap-[15px] rounded-[1000px] border border-figma-gray-300 bg-figma-white px-[20px] py-[10px]"
+            >
+              <input
+                value={option}
+                onChange={(event) => updateOption(index, event.target.value)}
+                placeholder="Tulis opsi..."
+                aria-label={`Opsi jawaban ${index + 1}`}
+                className="w-[112px] min-w-0 bg-transparent text-xs leading-4 text-figma-gray-500 outline-none placeholder:text-figma-gray-400"
+              />
+              <button
+                type="button"
+                onClick={() => removeOption(index)}
+                aria-label={`Hapus opsi ${option || index + 1}`}
+                className="shrink-0 cursor-pointer text-figma-gray-500 transition-opacity hover:opacity-70"
+              >
+                <CloseIcon className="size-[18px]" />
+              </button>
+            </span>
+          ))}
+          <button type="button" onClick={addOption} className={softChipClass}>
+            Tambah Opsi
+          </button>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => onChange({ otherOption: !question.otherOption })}
+        aria-pressed={Boolean(question.otherOption)}
+        className="flex w-full cursor-pointer items-center gap-[20px] rounded-[10px] border border-figma-blue-300 bg-figma-blue-50 px-[20px] py-[15px] text-left"
+      >
+        <span
+          className={`grid size-[24px] shrink-0 place-items-center rounded-[1000px] border-2 ${
+            question.otherOption ? "border-figma-blue-500" : "border-figma-blue-200"
+          }`}
+        >
+          {question.otherOption ? (
+            <span className="size-[12px] rounded-[1000px] bg-figma-blue-500" />
+          ) : null}
+        </span>
+        <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
+          <span className="text-sm leading-5 font-semibold text-figma-blue-800">
+            Pilihan Lainnya
+          </span>
+          <span className="text-xs leading-4 text-figma-blue-400">
+            Aktifkan agar alumni dapat menulis sumber lain.
+          </span>
+        </span>
+      </button>
+    </>
+  );
+}
+
+function MatrixEditor({ question, onChange }) {
+  const rows = question.rows ?? [];
+
+  const updateRow = (index, value) =>
+    onChange({ rows: rows.map((item, i) => (i === index ? value : item)) });
+
+  const removeRow = (index) => onChange({ rows: rows.filter((_, i) => i !== index) });
+  const addRow = () => onChange({ rows: [...rows, ""] });
+
+  return (
+    <>
+      <div className="flex flex-col gap-[5px]">
+        <FieldLabel>Teks Pertanyaan</FieldLabel>
+        <input
+          value={question.text}
+          onChange={(event) => onChange({ text: event.target.value })}
+          placeholder="Seberapa baik kompetensi berikut Anda kuasai saat lulus?"
+          className={editorFieldClass}
+        />
+      </div>
+
+      <div className="flex flex-col gap-[5px]">
+        <FieldLabel>Kompetensi yang Dinilai</FieldLabel>
+        <div className="flex w-full flex-col items-end gap-[5px]">
+          {rows.map((row, index) => (
+            <div
+              key={`${question.id}-row-${index}`}
+              className={`${editorFieldClass} justify-between`}
+            >
+              <input
+                value={row}
+                onChange={(event) => updateRow(index, event.target.value)}
+                placeholder="Nama kompetensi..."
+                aria-label={`Kompetensi ${index + 1}`}
+                className="min-w-0 flex-1 bg-transparent text-xs leading-4 text-figma-blue-800 outline-none placeholder:text-figma-blue-400"
+              />
+              <button
+                type="button"
+                onClick={() => removeRow(index)}
+                aria-label={`Hapus kompetensi ${row || index + 1}`}
+                className="shrink-0 cursor-pointer text-figma-blue-800 transition-opacity hover:opacity-70"
+              >
+                <CloseIcon />
+              </button>
+            </div>
+          ))}
+          <button type="button" onClick={addRow} className={softChipClass}>
+            Tambah Opsi
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+const GROUP_ITEM_LETTERS = ["a", "b", "c", "d", "e", "f"];
+
+function GroupEditor({ question, onChange }) {
+  const items = question.groupItems ?? [];
+
+  const updateItem = (id, patch) =>
+    onChange({
+      groupItems: items.map((item) => (item.id === id ? { ...item, ...patch } : item)),
+    });
+
+  const addItem = () =>
+    onChange({
+      groupItems: [
+        ...items,
+        { id: `${question.id}-gi-${items.length}`, label: "", kind: "text" },
+      ],
+    });
+
+  return (
+    <>
+      <div className="flex flex-col gap-[5px]">
+        <FieldLabel>Nama Grup Pertanyaan</FieldLabel>
+        <input
+          value={question.groupName ?? ""}
+          onChange={(event) => onChange({ groupName: event.target.value })}
+          placeholder="Kemampuan Berpikir Kritis & Pemecahan Masalah"
+          className={editorFieldClass}
+        />
+      </div>
+
+      <div className="flex flex-col gap-[5px]">
+        <FieldLabel>Daftar Pertanyaan</FieldLabel>
+        <div className="flex w-full flex-col items-start gap-[5px]">
+          {items.map((item, index) => (
+            <div key={item.id} className={`${editorFieldClass} justify-between`}>
+              <input
+                value={item.label}
+                onChange={(event) => updateItem(item.id, { label: event.target.value })}
+                placeholder={`${GROUP_ITEM_LETTERS[index] ?? index + 1}. Pertanyaan...`}
+                aria-label={`Pertanyaan ${index + 1} dalam grup`}
+                className="min-w-0 flex-1 bg-transparent text-xs leading-4 text-figma-blue-800 outline-none placeholder:text-figma-blue-400"
+              />
+              <ChevronDown />
+            </div>
+          ))}
+          <button type="button" onClick={addItem} className={softChipClass}>
+            Tambah Opsi Pertanyaan
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ----------------------------- Pratinjau ---------------------------- */
+
+const LIKERT_VALUES = ["1", "2", "3", "4", "5"];
+// Angka terpilih pada desain (setiap child_question_likert memakai nilai 2)
+const LIKERT_SELECTED = "2";
+
+function NumberPreview({ question }) {
+  return (
+    <div className="w-full rounded-[25px] border border-figma-blue-300 bg-figma-white p-[10px]">
+      <div className="flex w-full flex-col gap-[15px] p-[10px]">
+        <div className="flex flex-col gap-[5px] text-figma-blue-800">
+          <p className="text-lg leading-7 font-bold">
+            {question.text ||
+              "Berapa lama waktu Anda mencari pekerjaan pertama setelah lulus?"}
+          </p>
+          <p className="text-xs leading-4">
+            Isi {question.minValue || "0"} jika langsung bekerja setelah lulus.
+          </p>
+        </div>
+        <div className={previewFieldClass}>
+          <span className="min-w-0 flex-1">Masukkan jumlah bulan...</span>
+          <span>Bln</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ChoicePreview({ question }) {
+  const options = (question.options ?? []).filter((option) => option !== "");
+  const [firstOption, ...restOptions] = options;
+
+  // Chip biru (terpilih) pada desain: opsi ke-2 sampai ke-4
+  const selectedFlags = restOptions.map((_, index) => index <= 2);
+
+  const chip = (option, index, isSelected) => (
+    <span
+      key={`${option}-${index}`}
+      className={`flex h-[36px] shrink-0 items-center justify-center rounded-[1000px] border px-[20px] py-[10px] text-xs leading-4 ${
+        isSelected
+          ? "border-figma-blue-400 bg-figma-blue-200 text-figma-blue-800 drop-shadow-[0px_3px_2.5px_#dbeafe]"
+          : "border-figma-gray-300 bg-figma-white text-figma-gray-500"
+      }`}
+    >
+      {option}
+    </span>
+  );
+
+  return (
+    <div className="w-full rounded-[25px] border border-figma-blue-300 bg-figma-white p-[10px]">
+      <div className="flex w-full flex-col gap-[15px] p-[10px]">
+        <div className="flex flex-col gap-[5px] text-figma-blue-800">
+          <p className="text-lg leading-7 font-bold">
+            1.{" "}
+            {question.text ||
+              "Bagaimana Anda menemukan pekerjaan pertama setelah lulus?"}
+          </p>
+          <p className="text-xs leading-4">* Pilih semua yang sesuai</p>
+        </div>
+
+        <div className="flex flex-wrap items-start gap-[10px]">
+          {firstOption ? chip(firstOption, 0, false) : null}
+          {restOptions.map((option, index) => chip(option, index + 1, selectedFlags[index]))}
+        </div>
+
+        {question.otherOption ? (
+          <div className="flex w-full flex-col gap-[5px]">
+            <p className="text-xs leading-4 font-medium text-figma-blue-800">
+              Isi jawaban lainnya
+            </p>
+            <div className={previewFieldClass}>
+              {question.otherPlaceholder || "Sebutkan sumber lainnya..."}
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function MatrixPreview({ question }) {
+  const rows = (question.rows ?? []).filter((row) => row !== "");
+
+  return (
+    <div className="flex w-full flex-col overflow-clip rounded-[25px] border border-figma-blue-300 bg-figma-white">
+      <div className="w-full border-b border-figma-blue-300 bg-figma-blue-100 p-[15px]">
+        <p className="text-lg leading-7 font-bold text-figma-blue-800">
+          1.{" "}
+          {question.text || "Seberapa baik kompetensi berikut Anda kuasai saat lulus?"}
+        </p>
+      </div>
+
+      {rows.map((row, index) => (
+        <div
+          key={`${question.id}-preview-row-${index}`}
+          className="flex w-full flex-col gap-[10px] p-[15px]"
+        >
+          <p className="text-sm leading-5 font-semibold text-figma-gray-900">
+            {GROUP_ITEM_LETTERS[index] ?? index + 1}. {row}
+          </p>
+          <div className="flex w-full items-center justify-between text-xs leading-4 text-figma-gray-900">
+            <span className="whitespace-pre-line">{"Sangat\nRendah"}</span>
+            <span className="text-right whitespace-pre-line">{"Sangat\nTinggi"}</span>
+          </div>
+          <div className="flex w-full items-stretch overflow-clip rounded-[10px] border border-figma-blue-400">
+            {LIKERT_VALUES.map((value, valueIndex) => {
+              const isSelected = value === LIKERT_SELECTED;
+              const isLast = valueIndex === LIKERT_VALUES.length - 1;
+              return (
+                <span
+                  key={value}
+                  className={`flex h-[36px] flex-1 items-center justify-center px-[15px] py-[10px] text-xs leading-4 ${
+                    isSelected ? "bg-figma-blue-500 text-figma-blue-50" : "text-figma-blue-800"
+                  } ${isLast ? "" : "border-r border-figma-blue-400"}`}
+                >
+                  {value}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function GroupPreview({ question }) {
+  const items = question.groupItems ?? [];
+
+  return (
+    <div className="flex w-full flex-col overflow-clip rounded-[25px] border border-figma-blue-300 bg-figma-white">
+      <div className="w-full border-b border-figma-blue-300 bg-figma-blue-100 p-[15px]">
+        <p className="text-lg leading-7 font-bold text-figma-blue-800">
+          1. {question.groupName || "Nama Grup Pertanyaan"}
+        </p>
+      </div>
+
+      {items.map((item, index) => (
+        <div key={item.id} className="flex w-full flex-col gap-[10px] p-[15px]">
+          <p className="text-sm leading-5 font-semibold text-figma-gray-900">
+            {GROUP_ITEM_LETTERS[index] ?? index + 1}. {item.label || "Pertanyaan"}
+          </p>
+
+          {item.kind === "text" ? (
+            <div className={previewFieldClass}>Sebutkan contoh kasusnya...</div>
+          ) : null}
+
+          {item.kind === "select" ? (
+            <div className={`${previewFieldClass} justify-between`}>
+              <span className="min-w-0 flex-1">Pilih pendekatan solusi</span>
+              <ChevronDown />
+            </div>
+          ) : null}
+
+          {item.kind === "radio" ? (
+            <div className="flex w-full flex-col gap-[10px]">
+              {[
+                ["Perlu bimbingan", "Masih membutuhkan arahan."],
+                ["Cukup mandiri", "Sesekali membutuhkan masukan."],
+                ["Mandiri", "Mampu memutuskan sendiri."],
+              ].map(([title, description]) => (
+                <div
+                  key={title}
+                  className="flex w-full items-center gap-[20px] rounded-[10px] border border-figma-blue-300 bg-figma-blue-50 px-[20px] py-[15px]"
+                >
+                  <RadioCircle />
+                  <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
+                    <span className="text-sm leading-5 font-semibold text-figma-blue-800">
+                      {title}
+                    </span>
+                    <span className="text-xs leading-4 text-figma-blue-400">
+                      {description}
+                    </span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const EDITORS = {
+  angka: NumberEditor,
+  "pilihan-ganda": ChoiceEditor,
+  matriks: MatrixEditor,
+  grup: GroupEditor,
+};
+
+const PREVIEWS = {
+  angka: NumberPreview,
+  "pilihan-ganda": ChoicePreview,
+  matriks: MatrixPreview,
+  grup: GroupPreview,
+};
+
+export function QuestionEditorCard({ question, onUpdate, onRemove }) {
+  const Editor = EDITORS[question.type] ?? NumberEditor;
+  const Preview = PREVIEWS[question.type] ?? NumberPreview;
+
+  return (
+    <QuestionCardShell
+      title={CARD_HEADER_TITLE[question.type] ?? "Pertanyaan"}
+      onRemove={() => onRemove(question.id)}
+      preview={<Preview question={question} />}
+    >
+      <Editor question={question} onChange={(patch) => onUpdate(question.id, patch)} />
+      <div className="flex w-full items-center justify-end">
+        <button type="button" className={primaryChipClass}>
+          Simpan Pertanyaan
+        </button>
+      </div>
+    </QuestionCardShell>
+  );
+}
+
+export default QuestionEditorCard;

@@ -6,7 +6,7 @@ export function CardMetaPill({ icon, label, compact = false }) {
 
   return (
     <div
-      className={`flex shrink-0 items-center gap-[15px] [border-radius:1000px] border border-figma-blue-300 bg-figma-blue-100 shadow-[0_3px_2.5px_#DBEAFE] ${padding}`}
+      className={`flex shrink-0 items-center gap-[15px] rounded-[1000px] border border-figma-blue-300 bg-figma-blue-100 shadow-[0_3px_2.5px_#DBEAFE] ${padding}`}
     >
       <span className="flex size-[18px] shrink-0 items-center justify-center text-figma-blue-800">
         {icon}

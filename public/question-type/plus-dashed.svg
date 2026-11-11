@@ -1,0 +1,13 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20.5455" height="20.5455" viewBox="0 0 20.5455 20.5455" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="Component 1">
+<g id="Vector">
+<use xlink:href="#stroke0_0_13" stroke="#3B82F6"/>
+<use xlink:href="#stroke0_0_13" stroke="black" stroke-opacity="0.2"/>
+<use xlink:href="#stroke0_0_13" stroke="black" stroke-opacity="0.2"/>
+<use xlink:href="#stroke0_0_13" stroke="black" stroke-opacity="0.2"/>
+</g>
+</g>
+<defs>
+<path id="stroke0_0_13" d="M10.2727 3.42424V10.2727M10.2727 10.2727V17.1212M10.2727 10.2727H17.1212M10.2727 10.2727H3.42424" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</defs>
+</svg>

@@ -1,0 +1,143 @@
+"use client";
+
+import { useCallback } from "react";
+
+// Pilihan tipe pertanyaan di popup Tambah Pertanyaan (Figma: 1031:24437).
+// `value` = tipe yang dipakai QUESTION_TYPES di hooks/useQuestionnaireBuilder,
+// `key`   = identitas unik opsi (Pilihan Ganda & Pilihan Hanya Satu dirender
+//           sebagai kartu pilihan ganda yang sama).
+export const QUESTION_TYPE_OPTIONS = [
+  {
+    key: "angka",
+    value: "angka",
+    title: "Pertanyaan Input Dasar",
+    description:
+      "Pertanyaan tunggal untuk teks bebas maupun angka spesifik dengan Min/Max",
+    image: "/question-type/angka.png",
+    imageAlt: "Contoh tampilan pertanyaan input teks bebas",
+  },
+  {
+    key: "pilihan-ganda",
+    value: "pilihan-ganda",
+    title: "Pilihan Ganda",
+    description: "Menambah beberapa opsi jawaban dinamis dengan fitur input ‘lainnya’",
+    image: "/question-type/pilihan-ganda.png",
+    imageAlt: "Contoh tampilan pertanyaan pilihan ganda",
+  },
+  {
+    key: "pilihan-hanya-satu",
+    value: "pilihan-ganda",
+    title: "Pilihan Hanya Satu",
+    description:
+      "Menambah beberapa opsi jawaban dinamis dengan fitur input ‘lainnya’ dan hanya bisa memilih salah satu opsi",
+    image: "/question-type/hanya-satu.png",
+    imageAlt: "Contoh tampilan pertanyaan pilihan hanya satu",
+  },
+  {
+    key: "matriks",
+    value: "matriks",
+    title: "Matrix Evaluasi",
+    description: "Smart Builder otomatis untuk matrix skala ganda 1-5",
+    image: "/question-type/matriks.png",
+    imageAlt: "Contoh tampilan matrix evaluasi skala 1-5",
+  },
+  {
+    key: "grup",
+    value: "grup",
+    title: "Grup Custom (Advance)",
+    description:
+      "Jaring pengaman fungsional untuk membangun relasi wadah dan isi secara manual",
+    image: "/question-type/grup.png",
+    imageAlt: "Contoh tampilan grup pertanyaan custom",
+  },
+];
+
+function CloseIcon({ className }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={className}
+    >
+      <path d="M18 6 12 12M12 12 6 18M12 12 18 12M12 12 6 6" />
+    </svg>
+  );
+}
+
+// Popup pemilihan tipe pertanyaan (Figma: popup_add_pertanyaan 1031:24437)
+export function AddQuestionPopup({ open, onClose, onSelect }) {
+  const handleSelect = useCallback(
+    (option) => {
+      onSelect(option.value, option.key);
+      onClose();
+    },
+    [onClose, onSelect],
+  );
+
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-question-popup-title"
+        onClick={(event) => event.stopPropagation()}
+        className="flex max-h-[calc(100vh-32px)] w-full max-w-[640px] flex-col overflow-clip rounded-[25px] border border-solid border-figma-blue-300 bg-figma-white"
+      >
+        <div className="flex w-full shrink-0 items-center gap-[10px] border-b border-figma-blue-300 bg-figma-blue-100 p-[15px]">
+          <p
+            id="add-question-popup-title"
+            className="min-w-0 flex-1 text-lg leading-7 font-bold text-figma-blue-800"
+          >
+            Tambah Pertanyaan
+          </p>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Tutup popup tambah pertanyaan"
+            className="flex size-[24px] shrink-0 cursor-pointer items-center justify-center text-figma-blue-500 transition-opacity hover:opacity-70"
+          >
+            <CloseIcon className="size-[24px]" />
+          </button>
+        </div>
+
+        <div className="flex min-h-0 flex-1 flex-col gap-[10px] overflow-y-auto p-[10px]">
+          {QUESTION_TYPE_OPTIONS.map((option) => (
+            <button
+              key={option.key}
+              type="button"
+              onClick={() => handleSelect(option)}
+              className="flex w-full cursor-pointer items-start gap-[10px] rounded-[20px] border border-figma-blue-100 bg-figma-white p-[15px] text-left transition-colors hover:border-figma-blue-300 hover:bg-figma-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-figma-blue-500"
+            >
+              <span className="flex min-w-0 flex-1 flex-col gap-[5px]">
+                <span className="block w-full text-lg leading-7 font-semibold text-figma-gray-900">
+                  {option.title}
+                </span>
+                <span className="block w-full text-xs leading-4 font-normal text-figma-gray-500">
+                  {option.description}
+                </span>
+              </span>
+              <span className="h-[100px] w-[160px] shrink-0 overflow-hidden rounded-[10px] bg-figma-blue-50">
+                <img
+                  src={option.image}
+                  alt={option.imageAlt}
+                  className="size-full object-cover object-center"
+                />
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

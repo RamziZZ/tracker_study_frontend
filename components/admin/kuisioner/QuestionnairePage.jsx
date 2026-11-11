@@ -76,8 +76,8 @@ export default function QuestionnairePage() {
   };
 
   return (
-    <div className="flex h-full w-full flex-col gap-[16px]">
-      <section className="flex w-full shrink-0 flex-col gap-[16px] [border-radius:12px] bg-figma-white p-[20px]">
+    <div className="flex h-full w-full flex-col gap-[32px]">
+      <section className="flex w-full shrink-0 flex-col gap-[32px] overflow-clip rounded-[12px] bg-figma-white p-[24px]">
         <QuestionnaireHeader onAdd={handleAdd} onBulkAdd={handleBulkAdd} />
         <QuestionnaireFilterBar
           search={filters.search}
@@ -90,13 +90,13 @@ export default function QuestionnairePage() {
       </section>
 
       {/* Area scroll hanya di bagian list card; header & filter tetap diam */}
-      <div className="min-h-0 flex-1 overflow-y-auto pr-[4px]">
+      <div className="flex min-h-0 flex-1 flex-col gap-[32px] overflow-y-auto">
         {questionnaireList.length === 0 ? (
-          <p className="[border-radius:12px] bg-figma-white p-[20px] text-center text-sm text-figma-gray-500">
+          <p className="rounded-[12px] bg-figma-white p-[24px] text-center text-sm text-figma-gray-500">
             Belum ada kuisioner yang cocok dengan filter.
           </p>
         ) : (
-          <div className="grid grid-cols-1 gap-[16px] pb-[16px] xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-[24px] xl:grid-cols-2">
             {questionnaireList.map((item) => (
               <QuestionnaireCard
                 key={item.id}
@@ -106,9 +106,7 @@ export default function QuestionnairePage() {
             ))}
           </div>
         )}
-      </div>
 
-      <div className="shrink-0">
         <QuestionnairePagination
           page={page}
           pageSize={pageSize}
@@ -116,7 +114,6 @@ export default function QuestionnairePage() {
           onPageChange={handlePageChange}
         />
       </div>
-
     </div>
   );
 }

@@ -101,7 +101,7 @@ export default function Sidebar() {
     isActive(href) ? "text-figma-blue-800" : "text-figma-gray-500";
 
   return (
-    <aside className="hidden max-h-full w-[232px] shrink-0 flex-col overflow-y-auto [border-radius:16px] bg-figma-white p-[16px] shadow-sm lg:flex">
+    <aside className="hidden max-h-full w-[270px] shrink-0 flex-col overflow-y-auto rounded-[16px] bg-figma-white p-[16px] shadow-sm lg:flex">
       <nav className="flex flex-1 flex-col gap-[6px]">
         {navItems.map((item) => {
           const Icon = item.icon;
